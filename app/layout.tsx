@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import "./globals.css";
-import ClientProviders from "@/src/i18n/ClientProviders";
+import ClientProviders from "../src/i18n/ClientProviders";
 
 export const metadata = {
   title: "SWING BUDDY",

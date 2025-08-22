@@ -47,6 +47,7 @@ export type CoachSignupFormData = {
   certification: string;
   Lesson_rank: 'high' | 'low' | '';
   bio: string;
+  supports_competitive: boolean;
 
   // Step 3: Social
   profile_picture?: File;

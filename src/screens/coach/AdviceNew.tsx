@@ -163,8 +163,6 @@ const AdviceNew: React.FC<Props> = ({ videoId, onNavigate }) => {
                 value={voiceNotes[activeStep]}
                 onChange={(url) => setVoiceNotes(prev => ({ ...prev, [activeStep]: url }))}
                 label=""
-                className="whitespace-nowrap"
-                iconSize={26}
               />
             </div>
           </div>

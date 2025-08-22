@@ -17,13 +17,11 @@ export const dict = {
       theme_system: '端末に合わせる',
       brightness: '背景の明るさ',
       appSettings: 'アプリ設定',
-      appSettings: 'アプリ設定',
       notifications: '通知設定',
       subscription: 'プラン / チケット',
       favoritesCoaches: 'お気に入りコーチ',
       videoPrefs: '動画アップロード設定',
       dataStorage: 'データと保存容量',
-      support: 'サポート',
       support: 'サポート',
       help: 'ヘルプ / お問い合わせ',
       terms: '利用規約',
@@ -91,7 +89,6 @@ export const dict = {
       }
     },
     home: { title: 'ホーム' },
-    home: { title: 'ホーム' },
   },
   en: {
     tab: { home: 'Home', request: 'Request', mypage: 'My Page', settings: 'Settings' },
@@ -109,13 +106,11 @@ export const dict = {
       theme_system: 'Use system',
       brightness: 'Background brightness',
       appSettings: 'App Settings',
-      appSettings: 'App Settings',
       notifications: 'Notifications',
       subscription: 'Plan / Tickets',
       favoritesCoaches: 'Favorite Coaches',
       videoPrefs: 'Upload Preferences',
       dataStorage: 'Data & Storage',
-      support: 'Support',
       support: 'Support',
       help: 'Help / Contact',
       terms: 'Terms',
@@ -182,7 +177,6 @@ export const dict = {
         review_message: 'Review takes 1-3 business days. We will contact you by email.'
       }
     },
-    home: { title: 'Home' },
     home: { title: 'Home' },
   },
 } as const;

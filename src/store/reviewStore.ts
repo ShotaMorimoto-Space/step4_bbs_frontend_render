@@ -5,17 +5,31 @@
 
 export type ReviewId = string;
 
-export type Point = { x: number; y: number };
+export type Tool = 'select' | 'circle' | 'line' | 'angle' | 'mic' | 'text' | 'erase';
 
-export type Annotation =
-  | { id: string; tool: 'circle'; center: Point; radius: number; time: number }
-  | { id: string; tool: 'line'; from: Point; to: Point; time: number }
-  | { id: string; tool: 'text'; at: Point; text: string; time: number };
+export type Point = { x: number; y: number };
+export type TimeSec = number;
+
+export type AnnotationBase = {
+  id: string;
+  tool: Tool;
+  time: TimeSec;
+  color?: string;
+  note?: string;
+};
+
+export type CircleAnno = AnnotationBase & { tool: 'circle'; center: Point; radius: number };
+export type LineAnno   = AnnotationBase & { tool: 'line';   from: Point;   to: Point };
+export type AngleAnno  = AnnotationBase & { tool: 'angle';  a: Point; b: Point; c: Point; degrees: number };
+export type TextAnno   = AnnotationBase & { tool: 'text';   at: Point; text: string };
+
+export type Annotation = CircleAnno | LineAnno | AngleAnno | TextAnno | (AnnotationBase & { tool: 'mic' });
 
 export type ReviewClip = {
   id: string;
   label: string;
-  time: number;
+  time: TimeSec;
+  thumbUrl?: string;
   annotations: Annotation[];
 };
 

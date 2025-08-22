@@ -57,7 +57,7 @@ import AdviceNew from './screens/coach/AdviceNew';
 type Screen =
   | 'welcome' | 'signin' | 'signup' | 'signup-name' | 'signup-birth' | 'signup-gender' | 'signup-mail'
   | 'onboarding' | 'main' | 'home' | 'coach-home'
-  | 'request' | 'request-club' | 'request-problem' | 'request-done' | 'request-detail'
+  | 'request' | 'request-club' | 'request-problem' | 'request-done' | 'request-detail' | 'request-confirm'
   | 'mypage' | 'settings' | 'settings-notifications' | 'settings-plan' | 'settings-favorites'
   | 'settings-upload' | 'settings-storage' | 'settings-help' | 'settings-terms' | 'settings-privacy'
   | 'settings-appinfo' | 'settings-rate' | 'coach-signup' | 'coach-signup-done'

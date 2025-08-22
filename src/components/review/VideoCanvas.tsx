@@ -12,6 +12,7 @@ export type VideoCanvasProps = {
   onAdd: (anno: Annotation) => void;
   onUpdate: (anno: Annotation) => void;
   onDelete: (id: string) => void;
+  onSaveFrame?: (url: string) => void;
 };
 
 type DrawingState = {

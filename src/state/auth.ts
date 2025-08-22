@@ -1,5 +1,5 @@
 export type UserRole = 'user' | 'coach';
-export type RoleCandidate = 'coach' | null;
+export type RoleCandidate = 'user' | 'coach' | null;
 
 type AuthState = {
   role: UserRole;

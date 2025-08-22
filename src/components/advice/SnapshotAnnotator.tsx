@@ -178,7 +178,7 @@ const SnapshotAnnotator: React.FC<Props> = ({ src, time, onChange }) => {
   };
 
   const drawPreview = (ctx: CanvasRenderingContext2D, from: [number, number], to: [number, number]) => {
-    const cmd: DrawCmd = (tool === 'pen' || 'erase')
+    const cmd: DrawCmd = (tool === 'pen' || tool === 'erase')
       ? { t: tool, color, width, points: [from, to] }
       : { t: tool, color, width, from, to };
     drawCmd(ctx, cmd);
