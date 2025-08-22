@@ -26,14 +26,24 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          npm run build --if-present
+          npm run build
           npm run test --if-present
+
+      - name: Prepare deployment files
+        run: |
+          # ビルド済みファイルのみを準備
+          mkdir -p deploy
+          cp -r .next deploy/
+          cp -r public deploy/
+          cp package.json deploy/
+          cp next.config.js deploy/
+          cp -r node_modules deploy/
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: deploy/
 
   deploy:
     runs-on: ubuntu-latest
