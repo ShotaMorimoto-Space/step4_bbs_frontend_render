@@ -2,6 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-/* import original styles */
-:root { color-scheme: light; }
-html, body, #__next { height: 100%; }
+/* Theme variables */
+:root { 
+  --bg-dim: 0.15; 
+}
+
+.dark:root { 
+  --bg-dim: 0.25; 
+}
+
+/* Safe area utilities for mobile devices */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pl-safe {
+  padding-left: env(safe-area-inset-left);
+}
+
+.pr-safe {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Full viewport height utilities */
+.min-h-100dvh {
+  min-height: 100dvh;
+}
+
+.h-100dvh {
+  height: 100dvh;
+}
+
+/* Sticky footer utility */
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Typography utilities with responsive scaling */
+.h1-script {
+  font-family: cursive;
+  font-size: clamp(36px, 8vw, 52px);
+  line-height: 1;
+}
+
+.body-sm {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ===== SwingBuddy Theme Base ===== */
+:root {
+  /* 共通トークン */
+  --sb-radius-xl: 28px;
+  --sb-ease: 200ms ease;
+
+  /* 初期明るさ */
+  --sb-brightness: 1;
+}
+
+/* Light/Dark のカラートークン */
+.theme-light {
+  color-scheme: light;
+  --sb-bg: #ffffff;
+  --sb-bg-elev: #f6f6ff;
+  --sb-fg: #1a1b2b;
+  --sb-muted: #6b6f80;
+  --sb-surface: #ffffffcc;
+  --sb-border: #e8e8f7;
+}
+
+.theme-dark {
+  color-scheme: dark;
+  --sb-bg: #0c1019;
+  --sb-bg-elev: #11182a;
+  --sb-fg: #eef1ff;
+  --sb-muted: #aeb6cc;
+  --sb-surface: #0f1424cc;
+  --sb-border: #1f2740;
+}
+
+/* 画面全体へ適用（背景・文字色・明るさ） */
+html, body, #root {
+  height: 100%;
+}

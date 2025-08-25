@@ -49,10 +49,12 @@ import type { Review } from './types/review';
 
 import { RequestConfirmScreen } from './screens/RequestConfirmScreen';
 
-
 // ★ 追加：コーチ新フロー
 import VideoDetail from './screens/videos/VideoDetail';
 import AdviceNew from './screens/coach/AdviceNew';
+
+// APIテスト用
+import ApiTest from './components/ApiTest';
 
 type Screen =
   | 'welcome' | 'signin' | 'signup' | 'signup-name' | 'signup-birth' | 'signup-gender' | 'signup-mail'
@@ -62,7 +64,7 @@ type Screen =
   | 'settings-upload' | 'settings-storage' | 'settings-help' | 'settings-terms' | 'settings-privacy'
   | 'settings-appinfo' | 'settings-rate' | 'coach-signup' | 'coach-signup-done'
   | 'review-player' | 'review-detail' | 'review-timeline' | 'coach-jobs' | 'coach-review'
-  | 'video-detail' | 'coach-advice-new';
+  | 'video-detail' | 'coach-advice-new' | 'api-test';
 
 const DEV_BYPASS = process.env.NODE_ENV !== 'production';
 
@@ -239,76 +241,236 @@ const [requestDraft, setRequestDraft] = useState({
     );
   };
 
-  const renderSignInScreen = () => (
-    <div className="min-h-screen bg-gradient-to-b from-purple-500 via-purple-600 to-pink-500 flex flex-col p-6">
-      <div className="flex items-center justify-between mb-8 pt-4">
-        <button
-          onClick={() => setCurrentScreen('welcome')}
-          className="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h3 className="text-xl font-semibold text-white">ログイン</h3>
-        <div className="w-10" />
-      </div>
+  const renderSignInScreen = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-      <div className="flex-1 flex flex-col justify-center">
-        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 border border-white border-opacity-20">
-          <div className="space-y-6">
-            <div>
-              <label className="block text-white text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                placeholder="Enter your email"
-              />
+    const handleLogin = async () => {
+      if (!email || !password) {
+        setError('メールアドレスとパスワードを入力してください');
+        return;
+      }
+
+      setLoading(true);
+      setError('');
+
+      try {
+        // AuthServiceを使用してログイン
+        const { AuthService } = await import('./services/auth');
+        const response = await AuthService.login({
+          username: email, // OAuth2PasswordRequestFormではusernameフィールドにemailを設定
+          password: password
+        });
+
+        console.log('Login successful:', response);
+        
+        // ログイン成功後の処理
+        if (response.role === 'coach') {
+          setCurrentScreen('coach-home');
+        } else {
+          setCurrentScreen('home');
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+        setError(error instanceof Error ? error.message : 'ログインに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-500 via-purple-600 to-pink-500 flex flex-col p-6">
+        <div className="flex items-center justify-between mb-8 pt-4">
+          <button
+            onClick={() => setCurrentScreen('welcome')}
+            className="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h3 className="text-xl font-semibold text-white">ログイン</h3>
+          <div className="w-10" />
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center">
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 border border-white border-opacity-20">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
+                  placeholder="Enter your email"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
+                  placeholder="Enter your password"
+                  disabled={loading}
+                />
+              </div>
+              
+              {/* エラーメッセージ */}
+              {error && (
+                <div className="bg-red-500 bg-opacity-20 border border-red-300 rounded-lg p-3">
+                  <p className="text-red-200 text-sm">{error}</p>
+                </div>
+              )}
+              
+              <button
+                onClick={handleLogin}
+                disabled={loading}
+                className="w-full bg-white text-purple-600 font-semibold py-4 rounded-xl hover:bg-opacity-90 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'ログイン中...' : 'ログイン'}
+              </button>
+              
+              <button
+                onClick={() => setCurrentScreen('api-test')}
+                className="w-full mt-2 bg-yellow-500 text-white font-semibold py-4 rounded-xl hover:bg-yellow-600 transition-colors shadow-lg"
+              >
+                🧪 APIテスト
+              </button>
             </div>
-            <div>
-              <label className="block text-white text-sm font-medium mb-2">Password</label>
-              <input
-                type="password"
-                className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                placeholder="Enter your password"
-              />
-            </div>
-            <button
-              onClick={() => setCurrentScreen('home')}         // ★ onboarding経由せず homeへ直接
-              className="w-full bg-white text-purple-600 font-semibold py-4 rounded-xl hover:bg-opacity-90 transition-colors shadow-lg"
-            >
-              ログイン
-            </button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
-  const renderSignUpScreen = () => (
-    <div className="min-h-screen bg-gradient-to-b from-purple-500 via-purple-600 to-pink-500 flex flex-col p-6">
-      <div className="flex items-center justify-between mb-8 pt-4">
-        <button
-          onClick={() => setCurrentScreen('welcome')}
-          className="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h3 className="text-xl font-semibold text-white">新規登録</h3>
-        <div className="w-10" />
-      </div>
+  const renderSignUpScreen = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-      <div className="flex-1 flex flex-col justify-center">
-        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 border border-white border-opacity-20">
-          {/* 通常のSignUp画面が不要ならここ自体遷移させない運用でもOK */}
+    const handleSignUp = async () => {
+      if (!email || !password || !confirmPassword) {
+        setError('全ての項目を入力してください');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError('パスワードが一致しません');
+        return;
+      }
+
+      if (password.length < 6) {
+        setError('パスワードは6文字以上で入力してください');
+        return;
+      }
+
+      setLoading(true);
+      setError('');
+
+      try {
+        // AuthServiceを使用してユーザー登録
+        const { AuthService } = await import('./services/auth');
+        const response = await AuthService.registerUser({
+          username: email, // 一時的にemailをusernameとして使用
+          email: email,
+          password: password
+        });
+
+        console.log('User registration successful:', response);
+        
+        // 登録成功後、ログイン画面に遷移
+        setCurrentScreen('signin');
+      } catch (error) {
+        console.error('User registration failed:', error);
+        setError(error instanceof Error ? error.message : 'ユーザー登録に失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-500 via-purple-600 to-pink-500 flex flex-col p-6">
+        <div className="flex items-center justify-between mb-8 pt-4">
           <button
-            onClick={() => setCurrentScreen('signup-name')}
-            className="w-full bg-white text-purple-600 font-semibold py-4 rounded-xl hover:bg-opacity-90 transition-colors shadow-lg"
+            onClick={() => setCurrentScreen('welcome')}
+            className="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
           >
-            登録を開始する
+            <ArrowLeft size={24} />
           </button>
+          <h3 className="text-xl font-semibold text-white">新規登録</h3>
+          <div className="w-10" />
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center">
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 border border-white border-opacity-20">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
+                  placeholder="Enter your email"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
+                  placeholder="Enter your password"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
+                  placeholder="Confirm your password"
+                  disabled={loading}
+                />
+              </div>
+              
+              {/* エラーメッセージ */}
+              {error && (
+                <div className="bg-red-500 bg-opacity-20 border border-red-300 rounded-lg p-3">
+                  <p className="text-red-200 text-sm">{error}</p>
+                </div>
+              )}
+              
+              <button
+                onClick={handleSignUp}
+                disabled={loading}
+                className="w-full bg-white text-purple-600 font-semibold py-4 rounded-xl hover:bg-opacity-90 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '登録中...' : '登録を開始する'}
+              </button>
+              
+              <button
+                onClick={() => setCurrentScreen('signup-name')}
+                className="w-full bg-purple-500 text-white font-semibold py-4 rounded-xl hover:bg-purple-600 transition-colors shadow-lg"
+              >
+                詳細登録画面へ
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderMainScreen = () => (
     <div className="min-h-screen bg-gray-50">
@@ -524,6 +686,8 @@ const [requestDraft, setRequestDraft] = useState({
       {currentScreen === 'coach-advice-new' && (
         <AdviceNew videoId={currentVideoId} onNavigate={handleNavigate} />
       )}
+
+      {currentScreen === 'api-test' && <ApiTest />}
 
       {currentScreen === 'main' && renderMainScreen()}
     </div>
