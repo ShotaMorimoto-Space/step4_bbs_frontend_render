@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Play, Clock, MessageCircle, Star } from 'lucide-react';
 import { RequestLayout } from '@/components/RequestLayout';
 import { CommonButton } from '@/components/CommonLayout';
-
+import { safeLocalStorage } from '@/utils/storage';
 type VideoDetail = {
   video_id: string;
   thumbnail_url: string;

@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { RequestLayout } from '@/components/RequestLayout';
 import { CommonButton, CommonErrorMessage } from '@/components/CommonLayout';
-
+import { safeLocalStorage } from '@/utils/storage';
 type UploadFile = {
   id: string;
   file: File;

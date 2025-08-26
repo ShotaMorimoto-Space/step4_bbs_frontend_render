@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, X } from 'lucide-react';
+import { safeLocalStorage } from '@/utils/storage';
 
 export default function AddressEditPage() {
   const router = useRouter();

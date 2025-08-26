@@ -107,7 +107,7 @@ export default function BasicInfoEditPage() {
       // userIdが取得できない場合は、メールアドレスから取得を試行
       let actualUserId = userId;
       if (!actualUserId) {
-        const email = localStorage.getItem('user_email');
+        const email = safeLocalStorage.getItem('user_email');
         if (email) {
           // メールアドレスからユーザーIDを取得するAPIを呼び出す
           try {
@@ -204,10 +204,10 @@ export default function BasicInfoEditPage() {
       }
 
       // ローカルストレージに保存
-      localStorage.setItem('user_name', userInfo.name);
-      localStorage.setItem('user_gender', userInfo.gender);
-      localStorage.setItem('user_birth_date', userInfo.birthDate);
-      localStorage.setItem('user_avatar', userInfo.avatar);
+      safeLocalStorage.setItem('user_name', userInfo.name);
+      safeLocalStorage.setItem('user_gender', userInfo.gender);
+      safeLocalStorage.setItem('user_birth_date', userInfo.birthDate);
+      safeLocalStorage.setItem('user_avatar', userInfo.avatar);
       
       setSuccessMessage('基本情報が更新されました');
       
@@ -251,9 +251,9 @@ export default function BasicInfoEditPage() {
         {/* デバッグ情報 */}
         <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-300 text-xs">
           <div>デバッグ情報:</div>
-          <div>アクセストークン: {localStorage.getItem('access_token') ? 'あり' : 'なし'}</div>
-          <div>ユーザーID: {localStorage.getItem('user_id') || 'なし'}</div>
-          <div>メール: {localStorage.getItem('user_email') || 'なし'}</div>
+          <div>アクセストークン: {safeLocalStorage.getItem('access_token') ? 'あり' : 'なし'}</div>
+          <div>ユーザーID: {safeLocalStorage.getItem('user_id') || 'なし'}</div>
+          <div>メール: {safeLocalStorage.getItem('user_email') || 'なし'}</div>
         </div>
 
         {/* 編集フォーム */}

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RequestLayout } from '@/components/RequestLayout';
 import { CommonButton } from '@/components/CommonLayout';
+import { safeLocalStorage } from '@/utils/storage';
 
 const PROBLEMS = ['スライス','フック','トップ','ダフリ','飛距離不足','方向性','弾道の高さ','スピン量','リズム','ミート率'];
 
