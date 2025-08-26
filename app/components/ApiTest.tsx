@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { HealthService, ApiStatus } from '../services/health';
-import { AuthService } from '../services/auth';
+import { HealthService, ApiStatus } from '../../src/services/health';
+import { AuthService } from '../../src/services/auth';
 
 const ApiTest: React.FC = () => {
   const [healthStatus, setHealthStatus] = useState<ApiStatus | null>(null);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
-import type { RequestFilters, Club } from '../../types/requests';
+import type { RequestFilters, Club } from '../../../src/types/requests';
 
 interface FilterBarProps {
   filters: RequestFilters;
