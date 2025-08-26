@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AuthService } from '../../../src/services/auth';
-import { API_ENDPOINTS } from '../../../src/config/api';
-import { CommonLayout, CommonInput, CommonButton, CommonErrorMessage } from '../../../src/components/CommonLayout';
+import { AuthService } from '../../../../src/services/auth';
+import { API_ENDPOINTS } from '../../../../src/config/api';
+import { CommonLayout, CommonInput, CommonButton, CommonErrorMessage } from '../../../../src/components/CommonLayout';
 
 export default function EmailInputPage() {
   const router = useRouter();
