@@ -1,0 +1,21 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Deploy to Render
+        run: |
+          echo "🚀 Renderへの自動デプロイが開始されました"
+          echo "📝 このワークフローは、GitHubへのプッシュ時にRenderで自動的にビルドとデプロイを実行します"
+          echo "🔗 Renderダッシュボードでビルド状況を確認してください"
