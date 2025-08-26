@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CommonLayout, CommonInput, CommonButton, CommonErrorMessage } from '@/src/components/CommonLayout';
+import { CommonLayout, CommonInput, CommonButton, CommonErrorMessage } from '../../src/components/CommonLayout';
 
 export default function NameInputPage() {
   const router = useRouter();

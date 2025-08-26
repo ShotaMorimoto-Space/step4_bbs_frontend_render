@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RequestLayout } from '@/src/components/RequestLayout';
-import { CommonButton } from '@/src/components/CommonLayout';
+import { RequestLayout } from '../../src/components/RequestLayout';
+import { CommonButton } from '../../src/components/CommonLayout';
 
 type Club = 'Driver' | 'Wood' | 'Utility' | 'Iron' | 'Wedge' | 'Putter';
 

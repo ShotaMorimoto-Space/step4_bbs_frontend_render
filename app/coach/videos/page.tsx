@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CoachLayout } from '@/src/components/CoachLayout';
-import { CoachButton } from '@/src/components/CoachCommonLayout';
+import { CoachLayout } from '../../src/components/CoachLayout';
+import { CoachButton } from '../../src/components/CoachCommonLayout';
 import { 
   ArrowLeft,
   Video,
