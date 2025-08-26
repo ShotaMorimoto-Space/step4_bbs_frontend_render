@@ -264,6 +264,14 @@ export default function UserRequestPage() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
     const uploadUrl = `${apiUrl}/upload-video`;
     
+    // デバッグ用：環境変数の値を確認
+    console.log('環境変数デバッグ:', {
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+      apiUrl,
+      uploadUrl,
+      envType: typeof process.env.NEXT_PUBLIC_API_URL
+    });
+    
     console.log('アップロード情報:', {
       apiUrl,
       uploadUrl,
