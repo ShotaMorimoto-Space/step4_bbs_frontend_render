@@ -89,12 +89,24 @@ export default function App() {
   const [mailData, setMailData] = useState('');
   const [currentVideoId, setCurrentVideoId] = useState<string>('');
 // ★追加：依頼プレビュー用draft
-const [requestDraft, setRequestDraft] = useState({
-  videoThumb: '',
-  club: '',
-  problems: [] as string[],
-  note: ''
-});
+  const [requestDraft, setRequestDraft] = useState({
+    videoThumb: '',
+    club: '',
+    problems: [] as string[],
+    note: ''
+  });
+
+  // ログイン・サインアップ用の状態
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
+  const [signupLoading, setSignupLoading] = useState(false);
+  const [signupError, setSignupError] = useState('');
 
 
   useEffect(() => {
@@ -242,26 +254,22 @@ const [requestDraft, setRequestDraft] = useState({
   };
 
   const renderSignInScreen = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const handleLogin = async () => {
-      if (!email || !password) {
-        setError('メールアドレスとパスワードを入力してください');
+      if (!loginEmail || !loginPassword) {
+        setLoginError('メールアドレスとパスワードを入力してください');
         return;
       }
 
-      setLoading(true);
-      setError('');
+      setLoginLoading(true);
+      setLoginError('');
 
       try {
         // AuthServiceを使用してログイン
         const { AuthService } = await import('./services/auth');
         const response = await AuthService.login({
-          username: email, // OAuth2PasswordRequestFormではusernameフィールドにemailを設定
-          password: password
+          username: loginEmail, // OAuth2PasswordRequestFormではusernameフィールドにemailを設定
+          password: loginPassword
         });
 
         console.log('Login successful:', response);
@@ -272,11 +280,11 @@ const [requestDraft, setRequestDraft] = useState({
         } else {
           setCurrentScreen('home');
         }
-      } catch (error) {
-        console.error('Login failed:', error);
-        setError(error instanceof Error ? error.message : 'ログインに失敗しました');
+      } catch (signupError) {
+        console.error('Login failed:', signupError);
+        setLoginError(signupError instanceof Error ? signupError.message : 'ログインに失敗しました');
       } finally {
-        setLoading(false);
+        setLoginLoading(false);
       }
     };
 
@@ -299,39 +307,39 @@ const [requestDraft, setRequestDraft] = useState({
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Email</label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="signupEmail"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                  placeholder="Enter your email"
-                  disabled={loading}
+                  placeholder="Enter your signupEmail"
+                  disabled={loginLoading}
                 />
               </div>
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Password</label>
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="signupPassword"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
                   className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                  placeholder="Enter your password"
-                  disabled={loading}
+                  placeholder="Enter your signupPassword"
+                  disabled={loginLoading}
                 />
               </div>
               
               {/* エラーメッセージ */}
-              {error && (
+              {loginError && (
                 <div className="bg-red-500 bg-opacity-20 border border-red-300 rounded-lg p-3">
-                  <p className="text-red-200 text-sm">{error}</p>
+                  <p className="text-red-200 text-sm">{loginError}</p>
                 </div>
               )}
               
               <button
                 onClick={handleLogin}
-                disabled={loading}
+                disabled={loginLoading}
                 className="w-full bg-white text-purple-600 font-semibold py-4 rounded-xl hover:bg-opacity-90 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'ログイン中...' : 'ログイン'}
+                {loginLoading ? 'ログイン中...' : 'ログイン'}
               </button>
               
               <button
@@ -348,49 +356,44 @@ const [requestDraft, setRequestDraft] = useState({
   };
 
   const renderSignUpScreen = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const handleSignUp = async () => {
-      if (!email || !password || !confirmPassword) {
-        setError('全ての項目を入力してください');
+      if (!signupEmail || !signupPassword || !signupConfirmPassword) {
+        setSignupError('全ての項目を入力してください');
         return;
       }
 
-      if (password !== confirmPassword) {
-        setError('パスワードが一致しません');
+      if (signupPassword !== signupConfirmPassword) {
+        setSignupError('パスワードが一致しません');
         return;
       }
 
-      if (password.length < 6) {
-        setError('パスワードは6文字以上で入力してください');
+      if (signupPassword.length < 6) {
+        setSignupError('パスワードは6文字以上で入力してください');
         return;
       }
 
-      setLoading(true);
-      setError('');
+      setSignupLoading(true);
+      setSignupError('');
 
       try {
         // AuthServiceを使用してユーザー登録
         const { AuthService } = await import('./services/auth');
         const response = await AuthService.registerUser({
-          username: email, // 一時的にemailをusernameとして使用
-          email: email,
-          password: password
+          username: signupEmail, // 一時的にemailをusernameとして使用
+          email: signupEmail,
+          password: signupPassword
         });
 
         console.log('User registration successful:', response);
         
         // 登録成功後、ログイン画面に遷移
         setCurrentScreen('signin');
-      } catch (error) {
-        console.error('User registration failed:', error);
-        setError(error instanceof Error ? error.message : 'ユーザー登録に失敗しました');
+      } catch (signupError) {
+        console.error('User registration failed:', signupError);
+        setSignupError(signupError instanceof Error ? signupError.message : 'ユーザー登録に失敗しました');
       } finally {
-        setLoading(false);
+        setSignupLoading(false);
       }
     };
 
@@ -413,50 +416,50 @@ const [requestDraft, setRequestDraft] = useState({
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Email</label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="signupEmail"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
                   className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                  placeholder="Enter your email"
-                  disabled={loading}
+                  placeholder="Enter your signupEmail"
+                  disabled={signupLoading}
                 />
               </div>
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Password</label>
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="signupPassword"
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
                   className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                  placeholder="Enter your password"
-                  disabled={loading}
+                  placeholder="Enter your signupPassword"
+                  disabled={signupLoading}
                 />
               </div>
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Confirm Password</label>
                 <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  type="signupPassword"
+                  value={signupConfirmPassword}
+                  onChange={(e) => setSignupConfirmPassword(e.target.value)}
                   className="w-full bg-white bg-opacity-20 border border-white border-opacity-30 rounded-xl px-4 py-3 text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:border-opacity-60"
-                  placeholder="Confirm your password"
-                  disabled={loading}
+                  placeholder="Confirm your signupPassword"
+                  disabled={signupLoading}
                 />
               </div>
               
               {/* エラーメッセージ */}
-              {error && (
+              {signupError && (
                 <div className="bg-red-500 bg-opacity-20 border border-red-300 rounded-lg p-3">
-                  <p className="text-red-200 text-sm">{error}</p>
+                  <p className="text-red-200 text-sm">{signupError}</p>
                 </div>
               )}
               
               <button
                 onClick={handleSignUp}
-                disabled={loading}
+                disabled={signupLoading}
                 className="w-full bg-white text-purple-600 font-semibold py-4 rounded-xl hover:bg-opacity-90 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '登録中...' : '登録を開始する'}
+                {signupLoading ? '登録中...' : '登録を開始する'}
               </button>
               
               <button

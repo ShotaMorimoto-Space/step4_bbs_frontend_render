@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { PLACEHOLDER } from '../src/config/media';
+import { PLACEHOLDER } from '../config/media';
 
 type Props = {
   src: string;

@@ -71,11 +71,26 @@ export default function CustomVideoSlider({
       onSeek(newTime);
     }
     
-    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mousemove', handleDocumentMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
 
-  const handleMouseMove = (e: globalThis.MouseEvent) => {
+  // React用のマウス移動ハンドラー
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !sliderRef.current) return;
+    
+    const rect = sliderRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const sliderWidth = rect.width;
+    const percentage = Math.max(0, Math.min(1, mouseX / sliderWidth));
+    const newTime = percentage * duration;
+    
+    // ドラッグ中はリアルタイムでシーク
+    onSeek(newTime);
+  };
+
+  // document.addEventListener用のマウス移動ハンドラー
+  const handleDocumentMouseMove = (e: globalThis.MouseEvent) => {
     if (!isDragging || !sliderRef.current) return;
     
     const rect = sliderRef.current.getBoundingClientRect();
@@ -90,14 +105,14 @@ export default function CustomVideoSlider({
 
   const handleMouseUp = () => {
     setIsDragging(false);
-    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mousemove', handleDocumentMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
   // コンポーネントのクリーンアップ
   useEffect(() => {
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mousemove', handleDocumentMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
