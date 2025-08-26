@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { CoachLayout } from '@/components/CoachLayout';
-import { CoachButton, CoachTextarea } from '@/components/CoachCommonLayout';
+import { CoachLayout } from '../../../src/components/CoachLayout';
+import { CoachButton, CoachTextarea } from '../../../src/components/CoachCommonLayout';
 import { Upload, X, Play, Image as ImageIcon, Video, FileText, Camera, Trash2 } from 'lucide-react';
 
 interface UploadedFile {

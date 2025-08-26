@@ -14,8 +14,8 @@ import {
   X,
   ArrowLeft
 } from 'lucide-react';
-import { SettingsLayout } from '@/components/SettingsLayout';
-import { CommonButton } from '@/components/CommonLayout';
+import { SettingsLayout } from '../../../src/components/SettingsLayout';
+import { CommonButton } from '../../../src/components/CommonLayout';
 
 export default function UserSettingsPage() {
   const router = useRouter();

@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { RequestLayout } from '@/components/RequestLayout';
-import { CommonButton } from '@/components/CommonLayout';
+import { RequestLayout } from '../../../src/components/RequestLayout';
+import { CommonButton } from '../../../src/components/CommonLayout';
 
 export default function UserRequestDonePage() {
   const router = useRouter();
