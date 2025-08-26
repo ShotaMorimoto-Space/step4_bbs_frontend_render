@@ -7,13 +7,16 @@
     "build": "next build",
     "start": "next start",
     "start:azure": "next start -p $PORT",
-    "lint": "next lint"
+    "start:render": "next start -p $PORT",
+    "lint": "next lint",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",
     "next": "14.2.5",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "next-sitemap": "^4.2.3"
   },
   "devDependencies": {
     "@types/node": "24.2.1",

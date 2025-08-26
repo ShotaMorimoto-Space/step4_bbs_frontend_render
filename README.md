@@ -1,17 +1,51 @@
-# Next.js Standalone Frontend
+# BBC Golf Coaching Frontend
 
-This is a port of the provided Vite React app to Next.js 14 (App Router),
-keeping the exact UI and in-app screen transitions. All navigation remains
-state-based within `src/App.tsx`.
+SWING BUDDY - ゴルフコーチングアプリケーションのフロントエンド
 
-## Run
+## Renderへのデプロイ
+
+### 前提条件
+- Renderアカウント
+- GitHubリポジトリとの連携
+
+### デプロイ手順
+
+1. **Renderで新しいWebサービスを作成**
+   - GitHubリポジトリを選択
+   - ブランチを指定（mainまたはmaster）
+
+2. **環境変数の設定**
+   ```
+   NODE_ENV=production
+   PORT=10000
+   SITE_URL=https://your-app-name.onrender.com
+   NEXT_PUBLIC_API_URL=https://your-backend-api.onrender.com
+   ```
+
+3. **ビルド設定**
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm run start:render`
+
+4. **自動デプロイの有効化**
+   - GitHubへのプッシュ時に自動デプロイ
+
+### ローカル開発
+
 ```bash
-npm i
+npm install
 npm run dev
-# open http://localhost:3000
 ```
 
-## Notes
-- Original components, screens, and state are preserved under `src/`.
-- Static assets are in `public/` (including `public/images/bg.jpg`).
-- TailwindCSS is configured and uses `app/globals.css` plus `src/index.css`.
+### ビルド
+
+```bash
+npm run build
+npm start
+```
+
+## 技術スタック
+
+- Next.js 14
+- React 18
+- TypeScript
+- Tailwind CSS

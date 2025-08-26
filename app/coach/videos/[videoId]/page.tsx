@@ -135,7 +135,14 @@ export default function CoachVideoDetailPage() {
 
   // 動画再生の制御
   const handleVideoClick = () => {
-    setIsPlaying(!isPlaying);
+    console.log('動画再生開始:', video.video_url);
+    setIsPlaying(true);
+  };
+
+  // 動画再生停止
+  const handleVideoStop = () => {
+    console.log('動画再生停止');
+    setIsPlaying(false);
   };
 
   // ステータスに基づく色の取得
@@ -251,27 +258,57 @@ export default function CoachVideoDetailPage() {
           <h3 className="text-white text-lg font-medium mb-4">動画プレビュー</h3>
           
           <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
-            {video.thumbnail_url ? (
-              <img
-                src={video.thumbnail_url}
-                alt="動画サムネイル"
-                className="w-full h-full object-cover"
-              />
+            {isPlaying ? (
+              <div className="relative w-full h-full">
+                <video
+                  src={video.video_url}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    console.error('動画再生エラー:', e);
+                    setIsPlaying(false);
+                  }}
+                />
+                {/* 停止ボタン */}
+                <button
+                  onClick={handleVideoStop}
+                  className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-colors"
+                >
+                  <Play size={16} className="rotate-90" />
+                </button>
+              </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Video size={48} className="text-white/40" />
-              </div>
+              <>
+                {video.thumbnail_url ? (
+                  <img
+                    src={video.thumbnail_url}
+                    alt="動画サムネイル"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Video size={48} className="text-white/40" />
+                  </div>
+                )}
+                
+                {/* 再生ボタン */}
+                <button
+                  onClick={handleVideoClick}
+                  className="absolute inset-0 bg-black/30 flex items-center justify-center hover:bg-black/40 transition-colors"
+                >
+                  <div className="bg-white/90 rounded-full p-4">
+                    <Play size={32} className="text-gray-800 ml-1" />
+                  </div>
+                </button>
+              </>
             )}
-            
-            {/* 再生ボタン */}
-            <button
-              onClick={handleVideoClick}
-              className="absolute inset-0 bg-black/30 flex items-center justify-center hover:bg-black/40 transition-colors"
-            >
-              <div className="bg-white/90 rounded-full p-4">
-                <Play size={32} className="text-gray-800 ml-1" />
-              </div>
-            </button>
+          </div>
+          
+          {/* 動画URL情報（デバッグ用） */}
+          <div className="mt-2 text-xs text-white/60">
+            <p>動画URL: {video.video_url}</p>
+            <p>サムネイルURL: {video.thumbnail_url || 'なし'}</p>
           </div>
         </div>
 
@@ -367,23 +404,26 @@ export default function CoachVideoDetailPage() {
         )}
 
         {/* アクションボタン */}
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4 mb-40">
           <CoachButton
             onClick={() => router.push(`/coach/videos/${videoId}/feedback`)}
-            className="flex-1 bg-blue-500 hover:bg-blue-600"
+            className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-lg font-semibold"
           >
-            <MessageSquare size={20} />
+            <MessageSquare size={24} />
             添削フィードバックを作成
           </CoachButton>
           
           <CoachButton
             onClick={() => router.push('/coach/videos')}
             variant="secondary"
-            className="flex-1"
+            className="w-full py-4 text-lg font-semibold"
           >
             動画一覧に戻る
           </CoachButton>
         </div>
+        
+        {/* メニューバーとの重複を避けるための追加スペース */}
+        <div className="h-20"></div>
       </div>
     </CoachLayout>
   );

@@ -90,11 +90,22 @@ export default function CoachVideosPage() {
         const videosData = await response.json();
         console.log('取得した動画データ:', videosData);
         
+        // デバッグ用：最初の動画のユーザー情報を詳細にログ出力
+        if (videosData.length > 0) {
+          console.log('最初の動画のユーザー情報:', {
+            video: videosData[0],
+            user: videosData[0].user,
+            username: videosData[0].user?.username,
+            email: videosData[0].user?.email,
+            userKeys: videosData[0].user ? Object.keys(videosData[0].user) : 'user object is null/undefined'
+          });
+        }
+        
         // バックエンドのレスポンス形式に合わせて変換
         const coachVideos = videosData.map((video: any) => ({
           video_id: video.video_id,
           user_id: video.user_id,
-          user_name: video.user?.username || 'Unknown User',
+          user_name: video.user?.username || video.user?.name || 'Unknown User',
           user_email: video.user?.email || 'unknown@example.com',
           video_url: video.video_url,
           thumbnail_url: video.thumbnail_url,
@@ -280,107 +291,122 @@ export default function CoachVideosPage() {
               動画一覧 ({filteredVideos.length}件)
             </h3>
             
-            {filteredVideos.map((video) => (
-              <div
-                key={video.video_id}
-                onClick={() => handleVideoClick(video.video_id)}
-                className="bg-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/20 transition-colors border border-white/20"
-              >
-                <div className="flex items-start gap-4">
-                  {/* サムネイル */}
-                  <div className="relative w-20 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                    {video.thumbnail_url ? (
-                      <img
-                        src={video.thumbnail_url}
-                        alt="動画サムネイル"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Video size={24} className="text-white/40" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                      <Play size={16} className="text-white" />
-                    </div>
-                  </div>
+                         {filteredVideos.map((video) => (
+               <div
+                 key={video.video_id}
+                 onClick={() => handleVideoClick(video.video_id)}
+                 className="bg-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/20 transition-colors border border-white/20"
+               >
+                 <div className="flex items-start gap-3">
+                   {/* サムネイル */}
+                   <div className="relative w-20 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                     {video.thumbnail_url ? (
+                       <img
+                         src={video.thumbnail_url}
+                         alt="動画サムネイル"
+                         className="w-full h-full object-cover"
+                       />
+                     ) : (
+                       <div className="w-full h-full flex items-center justify-center">
+                         <Video size={24} className="text-white/40" />
+                       </div>
+                     )}
+                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                       <Play size={16} className="text-white" />
+                     </div>
+                   </div>
 
-                  {/* 動画情報 */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="text-white font-medium truncate">
-                        {video.user_name} さん
-                      </h4>
-                      <div className="flex gap-2">
-                        {/* ステータス */}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(video.status)}`}>
-                          {getStatusLabel(video.status)}
-                        </span>
-                        {/* 優先度 */}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getPriorityColor(video.priority)}`}>
-                          {getPriorityLabel(video.priority)}
-                        </span>
-                      </div>
-                    </div>
+                   {/* 動画情報 */}
+                   <div className="flex-1 min-w-0 max-w-[calc(100%-6rem)]">
+                     <div className="flex flex-col gap-2 mb-3">
+                       <h4 className="text-white font-medium truncate">
+                         {video.user_name} さん
+                       </h4>
+                       
+                       {/* ステータスと優先度を縦に配置 */}
+                       <div className="flex flex-col gap-1">
+                         <span className={`px-2 py-1 rounded-full text-xs font-medium text-white w-fit ${getStatusColor(video.status)}`}>
+                           {getStatusLabel(video.status)}
+                         </span>
+                         <span className={`px-2 py-1 rounded-full text-xs font-medium text-white w-fit ${getPriorityColor(video.priority)}`}>
+                           {getPriorityLabel(video.priority)}
+                         </span>
+                       </div>
+                     </div>
 
-                    <div className="space-y-1 text-sm">
-                      <div className="flex items-center gap-2 text-white/80">
-                        <span className="bg-orange-500/20 px-2 py-1 rounded text-xs">
-                          {video.club_type}
-                        </span>
-                        <span className="bg-blue-500/20 px-2 py-1 rounded text-xs">
-                          {video.swing_form}
-                        </span>
-                      </div>
-                      
-                      {video.swing_note && (
-                        <p className="text-white/70 text-xs line-clamp-2">
-                          {video.swing_note}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center gap-4 text-white/60 text-xs">
-                        <div className="flex items-center gap-1">
-                          <Clock size={14} />
-                          {formatDate(video.upload_date)}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <User size={14} />
-                          {video.user_email}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                     <div className="space-y-2 text-sm">
+                       {/* クラブタイプとスイングフォームを縦に配置 */}
+                       <div className="flex flex-col gap-1">
+                         <span className="bg-orange-500/20 px-2 py-1 rounded text-xs text-white w-fit">
+                           {video.club_type}
+                         </span>
+                         {/* スイングフォームを分割して個別のアイコンとして表示 */}
+                         <div className="flex flex-wrap gap-1">
+                           {video.swing_form ? (
+                             video.swing_form.split(',').map((form, index) => (
+                               <span 
+                                 key={index} 
+                                 className="bg-blue-500/20 px-2 py-1 rounded text-xs text-white w-fit"
+                               >
+                                 {form.trim()}
+                               </span>
+                             ))
+                           ) : (
+                             <span className="bg-gray-500/20 px-2 py-1 rounded text-xs text-white w-fit">
+                               未設定
+                             </span>
+                           )}
+                         </div>
+                       </div>
+                       
+                       {video.swing_note && (
+                         <p className="text-white/70 text-xs line-clamp-2">
+                           {video.swing_note}
+                         </p>
+                       )}
+                       
+                       <div className="flex flex-col gap-1 text-white/60 text-xs">
+                         <div className="flex items-center gap-1">
+                           <Clock size={14} />
+                           <span className="truncate">{formatDate(video.upload_date)}</span>
+                         </div>
+                         <div className="flex items-center gap-1">
+                           <User size={14} />
+                           <span className="truncate">{video.user_email}</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
 
-                  {/* アクションボタン */}
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVideoClick(video.video_id);
-                      }}
-                      className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                    >
-                      <Eye size={16} />
-                      詳細
-                    </button>
-                    
-                    {video.status === 'pending' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/coach/videos/${video.video_id}/feedback`);
-                        }}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                      >
-                        <MessageSquare size={16} />
-                        添削
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                   {/* アクションボタン */}
+                   <div className="flex flex-col gap-2">
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         handleVideoClick(video.video_id);
+                       }}
+                       className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                     >
+                       <Eye size={16} />
+                       詳細
+                     </button>
+                     
+                     {video.status === 'pending' && (
+                       <button
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           router.push(`/coach/videos/${video.video_id}/feedback`);
+                         }}
+                         className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                       >
+                         <MessageSquare size={16} />
+                         添削
+                       </button>
+                     )}
+                   </div>
+                 </div>
+               </div>
+             ))}
           </div>
         )}
       </div>
