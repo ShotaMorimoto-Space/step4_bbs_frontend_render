@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Play, Clock, MessageCircle, Star } from 'lucide-react';
-import { RequestLayout } from '../../src/components/RequestLayout';
-import { CommonButton } from '../../src/components/CommonLayout';
+import { RequestLayout } from '../../../src/components/RequestLayout';
+import { CommonButton } from '../../../src/components/CommonLayout';
 
 type VideoDetail = {
   video_id: string;
