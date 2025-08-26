@@ -23,36 +23,6 @@
       ],
       "@/src/*": [
         "./src/*"
-      ],
-      "@/components/*": [
-        "./src/components/*"
-      ],
-      "@/services/*": [
-        "./src/services/*"
-      ],
-      "@/config/*": [
-        "./src/config/*"
-      ],
-      "@/utils/*": [
-        "./src/utils/*"
-      ],
-      "@/types/*": [
-        "./src/types/*"
-      ],
-      "@/data/*": [
-        "./src/data/*"
-      ],
-      "@/screens/*": [
-        "./src/screens/*"
-      ],
-      "@/store/*": [
-        "./src/store/*"
-      ],
-      "@/theme/*": [
-        "./src/theme/*"
-      ],
-      "@/i18n/*": [
-        "./src/i18n/*"
       ]
     },
     "plugins": [
