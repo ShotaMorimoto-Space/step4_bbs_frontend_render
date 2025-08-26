@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AuthService } from '../../../../src/services/auth';
 import { API_ENDPOINTS } from '../../../../src/config/api';
 import { CommonLayout, CommonInput, CommonButton, CommonErrorMessage } from '@/components/CommonLayout';
+import { safeLocalStorage } from '../../../utils/storage';
 
 export default function EmailInputPage() {
   const router = useRouter();
@@ -42,9 +43,9 @@ export default function EmailInputPage() {
 
     try {
       // localStorageから一時保存されたデータを取得
-      const fullName = localStorage.getItem('tempFullName');
-      const birthDate = localStorage.getItem('tempBirthDate');
-      const gender = localStorage.getItem('tempGender');
+      const fullName = safeLocalStorage.getItem('tempFullName');
+      const birthDate = safeLocalStorage.getItem('tempBirthDate');
+      const gender = safeLocalStorage.getItem('tempGender');
 
       // デバッグ用：localStorageの値を詳細にログ出力
       console.log('=== localStorage デバッグ情報 ===');
@@ -85,9 +86,9 @@ export default function EmailInputPage() {
       console.log('User registration successful:', response);
       
       // 一時データをクリア
-      localStorage.removeItem('tempFullName');
-      localStorage.removeItem('tempBirthDate');
-      localStorage.removeItem('tempGender');
+      safeLocalStorage.removeItem('tempFullName');
+      safeLocalStorage.removeItem('tempBirthDate');
+      safeLocalStorage.removeItem('tempGender');
       
       // 登録成功後、ログイン画面に遷移
       router.push('/auth/login?registered=true');
@@ -121,9 +122,9 @@ export default function EmailInputPage() {
   // ページ読み込み時にlocalStorageの値を確認
   React.useEffect(() => {
     console.log('=== ページ読み込み時のlocalStorage確認 ===');
-    console.log('tempFullName:', localStorage.getItem('tempFullName'));
-    console.log('tempBirthDate:', localStorage.getItem('tempBirthDate'));
-    console.log('tempGender:', localStorage.getItem('tempGender'));
+    console.log('tempFullName:', safeLocalStorage.getItem('tempFullName'));
+    console.log('tempBirthDate:', safeLocalStorage.getItem('tempBirthDate'));
+    console.log('tempGender:', safeLocalStorage.getItem('tempGender'));
     console.log('========================================');
   }, []);
 

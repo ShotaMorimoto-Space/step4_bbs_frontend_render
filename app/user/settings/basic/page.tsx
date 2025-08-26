@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Save, X, User, Camera } from 'lucide-react';
 import { SettingsLayout } from '@/components/SettingsLayout';
 import { CommonButton, CommonInput, CommonErrorMessage } from '@/components/CommonLayout';
+import { safeLocalStorage } from '../../../utils/storage';
 
 export default function BasicInfoEditPage() {
   const router = useRouter();
@@ -24,9 +25,9 @@ export default function BasicInfoEditPage() {
   // 認証状態の確認とユーザー情報の取得
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('access_token');
-      const email = localStorage.getItem('user_email');
-      const userId = localStorage.getItem('user_id');
+      const token = safeLocalStorage.getItem('access_token');
+      const email = safeLocalStorage.getItem('user_email');
+      const userId = safeLocalStorage.getItem('user_id');
       
       console.log('認証チェック:', {
         token: token ? 'あり' : 'なし',
@@ -42,10 +43,10 @@ export default function BasicInfoEditPage() {
 
       // ユーザー情報をローカルストレージから取得
       setUserInfo({
-        name: localStorage.getItem('user_name') || '',
-        birthDate: localStorage.getItem('user_birth_date') || '',
-        gender: localStorage.getItem('user_gender') || '',
-        avatar: localStorage.getItem('user_avatar') || ''
+        name: safeLocalStorage.getItem('user_name') || '',
+        birthDate: safeLocalStorage.getItem('user_birth_date') || '',
+        gender: safeLocalStorage.getItem('user_gender') || '',
+        avatar: safeLocalStorage.getItem('user_avatar') || ''
       });
     };
 
@@ -89,14 +90,14 @@ export default function BasicInfoEditPage() {
     setErrorMessage('');
     
     try {
-      const accessToken = localStorage.getItem('access_token');
-      const userId = localStorage.getItem('user_id');
+      const accessToken = safeLocalStorage.getItem('access_token');
+      const userId = safeLocalStorage.getItem('user_id');
       
       // デバッグ情報をコンソールに出力
       console.log('認証情報確認:', {
         accessToken: accessToken ? 'あり' : 'なし',
         userId: userId || 'なし',
-        localStorageKeys: Object.keys(localStorage)
+        localStorageKeys: typeof window !== 'undefined' ? Object.keys(window.localStorage) : []
       });
       
       if (!accessToken) {

@@ -37,7 +37,7 @@ export default function VideoDetailPage() {
   // 動画詳細を取得
   useEffect(() => {
     const fetchVideoDetail = async () => {
-      const accessToken = localStorage.getItem('access_token');
+      const accessToken = safeLocalStorage.getItem('access_token');
       
       if (!accessToken) {
         router.push('/auth/login');

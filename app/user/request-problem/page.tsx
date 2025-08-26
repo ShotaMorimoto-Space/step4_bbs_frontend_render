@@ -15,7 +15,7 @@ export default function UserRequestProblemPage() {
 
   // 前の画面から渡されたデータを取得
   useEffect(() => {
-    const savedDraft = localStorage.getItem('sb:req:draft');
+    const savedDraft = safeLocalStorage.getItem('sb:req:draft');
     if (savedDraft) {
       try {
         const draft = JSON.parse(savedDraft);
@@ -42,20 +42,20 @@ export default function UserRequestProblemPage() {
     console.log('次へ進む - 入力されたメモ:', note);
     
     // 選んだ問題とメモをドラフトに保存
-    const currentDraft = JSON.parse(localStorage.getItem('sb:req:draft') || '{}');
+    const currentDraft = JSON.parse(safeLocalStorage.getItem('sb:req:draft') || '{}');
     const updatedDraft = { ...currentDraft, problems: selected, note };
     
     console.log('保存前のドラフト:', currentDraft);
     console.log('更新後のドラフト:', updatedDraft);
     
-    localStorage.setItem('sb:req:draft', JSON.stringify(updatedDraft));
+    safeLocalStorage.setItem('sb:req:draft', JSON.stringify(updatedDraft));
     
     // 保存確認
-    const savedDraft = localStorage.getItem('sb:req:draft');
+    const savedDraft = safeLocalStorage.getItem('sb:req:draft');
     console.log('localStorageに保存されたドラフト:', savedDraft);
     
     // 動画ファイルを取得
-    const savedFiles = localStorage.getItem('sb:req:files');
+    const savedFiles = safeLocalStorage.getItem('sb:req:files');
     if (savedFiles) {
       try {
         const files = JSON.parse(savedFiles);
@@ -105,8 +105,8 @@ export default function UserRequestProblemPage() {
           }
             
             // ユーザー情報を追加
-            const userId = localStorage.getItem('user_id');
-            const userEmail = localStorage.getItem('user_email');
+            const userId = safeLocalStorage.getItem('user_id');
+            const userEmail = safeLocalStorage.getItem('user_email');
             
             if (userId) {
               formData.append('user_id', userId);
@@ -169,7 +169,7 @@ export default function UserRequestProblemPage() {
             const response = await fetch(uploadUrl, {
               method: 'POST',
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                'Authorization': `Bearer ${safeLocalStorage.getItem('access_token')}`
               },
               body: formData,
             }).catch(fetchError => {

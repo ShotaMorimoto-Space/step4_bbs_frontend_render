@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { CoachLayout } from '@/components/CoachLayout';
+import { safeLocalStorage } from '../../../utils/storage';
 import { CoachButton } from '@/components/CoachCommonLayout';
 import { 
   ArrowLeft,
@@ -50,8 +51,8 @@ export default function CoachVideoDetailPage() {
   // 認証チェック
   useEffect(() => {
     const checkAuth = () => {
-      const accessToken = localStorage.getItem('access_token');
-      const userType = localStorage.getItem('user_type');
+      const accessToken = safeLocalStorage.getItem('access_token');
+      const userType = safeLocalStorage.getItem('user_type');
       
       if (!accessToken) {
         router.push('/auth/login');
@@ -73,7 +74,7 @@ export default function CoachVideoDetailPage() {
       try {
         setLoading(true);
         
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = safeLocalStorage.getItem('access_token');
         if (!accessToken) {
           setError('認証トークンがありません');
           setLoading(false);

@@ -157,8 +157,8 @@ export default function UserRequestPage() {
 
   // 認証状態の確認
   useEffect(() => {
-    const accessToken = localStorage.getItem('access_token');
-    const userEmail = localStorage.getItem('user_email');
+    const accessToken = safeLocalStorage.getItem('access_token');
+    const userEmail = safeLocalStorage.getItem('user_email');
     
     if (!accessToken || !userEmail) {
       console.log('認証情報が不足しています。ログインページに移動します。');
@@ -171,8 +171,8 @@ export default function UserRequestPage() {
 
   // ユーザー認証の確認
   const checkAuth = () => {
-    const accessToken = localStorage.getItem('access_token');
-    const userEmail = localStorage.getItem('user_email');
+    const accessToken = safeLocalStorage.getItem('access_token');
+    const userEmail = safeLocalStorage.getItem('user_email');
     
     if (!accessToken || !userEmail) {
       setErrorMessage('ログインが必要です。ログインページに移動します。');
@@ -215,8 +215,8 @@ export default function UserRequestPage() {
     formData.append('video_file', file);
     
     // ユーザー情報を追加
-    const userEmail = localStorage.getItem('user_email');
-    const userId = localStorage.getItem('user_id');
+    const userEmail = safeLocalStorage.getItem('user_email');
+    const userId = safeLocalStorage.getItem('user_id');
     
     if (userEmail) {
       formData.append('user_email', userEmail);
@@ -227,7 +227,7 @@ export default function UserRequestPage() {
     }
     
     // request-clubとrequest-problemで選択された内容を追加
-    const savedDraft = localStorage.getItem('sb:req:draft');
+    const savedDraft = safeLocalStorage.getItem('sb:req:draft');
     if (savedDraft) {
       try {
         const draft = JSON.parse(savedDraft);
@@ -308,7 +308,7 @@ export default function UserRequestPage() {
 
       // 新しいuser_idをlocalStorageに保存
       if (result.user_id) {
-        localStorage.setItem('user_id', result.user_id);
+        safeLocalStorage.setItem('user_id', result.user_id);
         console.log('新しいuser_idをlocalStorageに保存:', result.user_id);
       }
       
@@ -335,7 +335,7 @@ export default function UserRequestPage() {
   const persistForNext = (items: UploadFile[]) => {
     // 次画面で使う軽いメタだけ保存（巨大Fileは保存しない）
     const meta = items.map(i => ({ id: i.id, name: i.name, size: i.size, url: i.url }));
-    localStorage.setItem('sb:req:files', JSON.stringify(meta));
+    safeLocalStorage.setItem('sb:req:files', JSON.stringify(meta));
   };
 
   const handlePickedFiles = async (selectedFiles: File[]) => {
@@ -380,7 +380,7 @@ export default function UserRequestPage() {
           });
           
           // ドラフトに動画情報を保存
-          const currentDraft = JSON.parse(localStorage.getItem('sb:req:draft') || '{}');
+          const currentDraft = JSON.parse(safeLocalStorage.getItem('sb:req:draft') || '{}');
           const updatedDraft = { 
             ...currentDraft, 
             videoThumb: uploadResult.thumbnail_url,
@@ -393,7 +393,7 @@ export default function UserRequestPage() {
             thumbnailLength: uploadResult.thumbnail_url?.length
           });
           
-          localStorage.setItem('sb:req:draft', JSON.stringify(updatedDraft));
+          safeLocalStorage.setItem('sb:req:draft', JSON.stringify(updatedDraft));
           
         } catch (error) {
           console.error(`ファイル ${file.name} のアップロード失敗:`, error);
@@ -408,7 +408,7 @@ export default function UserRequestPage() {
         const next = [...prev, ...newFiles];
         // 次画面用に軽量メタだけ保存
         const meta = next.map(i => ({ id: i.id, name: i.name, size: i.size, url: i.url }));
-        localStorage.setItem('sb:req:files', JSON.stringify(meta));
+        safeLocalStorage.setItem('sb:req:files', JSON.stringify(meta));
         return next;
       });
       
@@ -519,7 +519,7 @@ export default function UserRequestPage() {
                   url: file.url
                 }));
                 
-                localStorage.setItem('selectedVideos', JSON.stringify(videoData));
+                safeLocalStorage.setItem('selectedVideos', JSON.stringify(videoData));
                 console.log('動画ファイル情報を保存:', videoData);
                 
                 // 次の画面（クラブ選択）に遷移

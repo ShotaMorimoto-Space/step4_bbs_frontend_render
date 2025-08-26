@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CoachLayout } from '@/components/CoachLayout';
 import { CoachButton } from '@/components/CoachCommonLayout';
+import { safeLocalStorage } from '../../utils/storage';
 import { 
   Home as HomeIcon, 
   FileText as FileTextIcon, 
@@ -23,9 +24,9 @@ export default function CoachHomePage() {
   // 認証状態とusertypeの確認
   useEffect(() => {
     const checkAuth = () => {
-      const accessToken = localStorage.getItem('access_token');
-      const userEmail = localStorage.getItem('user_email');
-      const storedUserType = localStorage.getItem('user_type');
+      const accessToken = safeLocalStorage.getItem('access_token');
+      const userEmail = safeLocalStorage.getItem('user_email');
+      const storedUserType = safeLocalStorage.getItem('user_type');
       
       if (!accessToken || !userEmail) {
         console.log('認証情報が不足しています。ログインページに移動します。');

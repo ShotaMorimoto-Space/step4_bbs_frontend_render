@@ -11,7 +11,7 @@ export default function UserRequestDonePage() {
   const handleComplete = () => {
     // Clean up temporary data
     try {
-      const meta = JSON.parse(localStorage.getItem('sb:req:files') || '[]') as { url: string }[];
+      const meta = JSON.parse(safeLocalStorage.getItem('sb:req:files') || '[]') as { url: string }[];
       meta.forEach(m => m.url && URL.revokeObjectURL(m.url));
     } catch (error) {
       console.error('Error cleaning up file URLs:', error);
@@ -19,7 +19,7 @@ export default function UserRequestDonePage() {
     
     // Remove all temporary data
     ['sb:req:files', 'sb:req:draft'].forEach(key => 
-      localStorage.removeItem(key)
+      safeLocalStorage.removeItem(key)
     );
     
     // Navigate back to home

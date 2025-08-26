@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RequestLayout } from '@/components/RequestLayout';
 import { CommonButton } from '@/components/CommonLayout';
+import { safeLocalStorage } from '../../../utils/storage';
 
 type Club = 'Driver' | 'Wood' | 'Utility' | 'Iron' | 'Wedge' | 'Putter';
 
@@ -14,7 +15,7 @@ export default function UserRequestClubPage() {
 
   // 前の画面から渡された動画ファイル情報を取得
   useEffect(() => {
-    const savedVideos = localStorage.getItem('selectedVideos');
+    const savedVideos = safeLocalStorage.getItem('selectedVideos');
     if (savedVideos) {
       try {
         const videoData = JSON.parse(savedVideos);
@@ -36,16 +37,16 @@ export default function UserRequestClubPage() {
       console.log('次へ進む - 選択されたクラブ:', club);
       
       // 選んだクラブをドラフトに保存
-      const currentDraft = JSON.parse(localStorage.getItem('sb:req:draft') || '{}');
+      const currentDraft = JSON.parse(safeLocalStorage.getItem('sb:req:draft') || '{}');
       const updatedDraft = { ...currentDraft, club };
       
       console.log('保存前のドラフト:', currentDraft);
       console.log('更新後のドラフト:', updatedDraft);
       
-      localStorage.setItem('sb:req:draft', JSON.stringify(updatedDraft));
+      safeLocalStorage.setItem('sb:req:draft', JSON.stringify(updatedDraft));
       
       // 保存確認
-      const savedDraft = localStorage.getItem('sb:req:draft');
+      const savedDraft = safeLocalStorage.getItem('sb:req:draft');
       console.log('localStorageに保存されたドラフト:', savedDraft);
       
       // 次画面へ遷移

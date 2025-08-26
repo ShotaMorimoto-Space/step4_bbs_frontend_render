@@ -19,13 +19,13 @@ export default function UserRequestConfirmPage() {
 
   useEffect(() => {
     // ローカルストレージからドラフトデータを読み込み
-    const savedDraft = localStorage.getItem('sb:req:draft');
+    const savedDraft = safeLocalStorage.getItem('sb:req:draft');
     if (savedDraft) {
       setDraft(JSON.parse(savedDraft));
     }
 
     // 動画ファイルのURLも直接取得
-    const savedFiles = localStorage.getItem('sb:req:files');
+    const savedFiles = safeLocalStorage.getItem('sb:req:files');
     if (savedFiles) {
       try {
         const files = JSON.parse(savedFiles);
@@ -47,8 +47,8 @@ export default function UserRequestConfirmPage() {
     console.log('依頼完了:', draft);
     
     // ドラフトデータをクリア
-    localStorage.removeItem('sb:req:draft');
-    localStorage.removeItem('sb:req:files');
+    safeLocalStorage.removeItem('sb:req:draft');
+    safeLocalStorage.removeItem('sb:req:files');
     
     // 完了画面へ遷移
     router.push('/user/request-done');

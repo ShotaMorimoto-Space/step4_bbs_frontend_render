@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { CoachLayout } from '@/components/CoachLayout';
+import { safeLocalStorage } from '../../../../utils/storage';
 import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '@/components/CoachCommonLayout';
 import CustomVideoSlider from '@/components/CustomVideoSlider';
 import { 
@@ -83,7 +84,7 @@ export default function CoachFeedbackPage() {
       try {
         setLoading(true);
         
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = safeLocalStorage.getItem('access_token');
         if (!accessToken) {
           console.error('認証トークンがありません');
           setLoading(false);
@@ -195,7 +196,7 @@ export default function CoachFeedbackPage() {
       const currentTime = videoElement.currentTime;
       
       // バックエンドにキャプチャ画像をアップロード
-      const accessToken = localStorage.getItem('access_token');
+      const accessToken = safeLocalStorage.getItem('access_token');
       if (!accessToken) {
         alert('認証トークンがありません');
         return;
@@ -331,7 +332,7 @@ export default function CoachFeedbackPage() {
     try {
       setSaving(true);
       
-      const accessToken = localStorage.getItem('access_token');
+      const accessToken = safeLocalStorage.getItem('access_token');
       if (!accessToken) {
         alert('認証トークンがありません');
         return;

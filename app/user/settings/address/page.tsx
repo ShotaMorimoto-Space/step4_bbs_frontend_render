@@ -25,8 +25,8 @@ export default function AddressEditPage() {
   // 認証状態の確認とユーザー情報の取得
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('access_token');
-      const email = localStorage.getItem('user_email');
+      const token = safeLocalStorage.getItem('access_token');
+      const email = safeLocalStorage.getItem('user_email');
       
       if (!token || !email) {
         router.push('/auth/login');
@@ -35,10 +35,10 @@ export default function AddressEditPage() {
 
       // ユーザー情報をローカルストレージから取得
       setUserInfo({
-        zipCode: localStorage.getItem('user_zip_code') || '',
-        state: localStorage.getItem('user_state') || '',
-        address1: localStorage.getItem('user_address1') || '',
-        address2: localStorage.getItem('user_address2') || ''
+        zipCode: safeLocalStorage.getItem('user_zip_code') || '',
+        state: safeLocalStorage.getItem('user_state') || '',
+        address1: safeLocalStorage.getItem('user_address1') || '',
+        address2: safeLocalStorage.getItem('user_address2') || ''
       });
     };
 
@@ -51,8 +51,8 @@ export default function AddressEditPage() {
     setErrorMessage('');
     
     try {
-      const accessToken = localStorage.getItem('access_token');
-      const userId = localStorage.getItem('user_id');
+      const accessToken = safeLocalStorage.getItem('access_token');
+      const userId = safeLocalStorage.getItem('user_id');
       
       if (!accessToken || !userId) {
         throw new Error('認証情報が不足しています');
@@ -82,10 +82,10 @@ export default function AddressEditPage() {
       }
 
       // ローカルストレージに保存
-      localStorage.setItem('user_zip_code', userInfo.zipCode);
-      localStorage.setItem('user_state', userInfo.state);
-      localStorage.setItem('user_address1', userInfo.address1);
-      localStorage.setItem('user_address2', userInfo.address2);
+      safeLocalStorage.setItem('user_zip_code', userInfo.zipCode);
+      safeLocalStorage.setItem('user_state', userInfo.state);
+      safeLocalStorage.setItem('user_address1', userInfo.address1);
+      safeLocalStorage.setItem('user_address2', userInfo.address2);
       
       setSuccessMessage('住所情報が更新されました');
       
