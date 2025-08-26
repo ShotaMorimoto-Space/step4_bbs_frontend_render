@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import { AuthService } from '../../../src/services/auth';
+import { AuthService } from '../../../../../src/services/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
