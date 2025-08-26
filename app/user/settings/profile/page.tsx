@@ -20,7 +20,7 @@ export default function ProfileEditPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // バックエンドAPIのベースURL
-  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
 
   // 認証状態の確認とユーザー情報の取得
   useEffect(() => {

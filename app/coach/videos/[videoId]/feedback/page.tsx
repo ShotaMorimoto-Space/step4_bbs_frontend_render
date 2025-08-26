@@ -92,7 +92,7 @@ export default function CoachFeedbackPage() {
         }
 
         // バックエンドAPIから動画データを取得
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
         const response = await fetch(`${apiUrl}/video/${videoId}/with-sections`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -202,7 +202,7 @@ export default function CoachFeedbackPage() {
         return;
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       
       // セクショングループを作成または取得
       const sectionGroupData = {
@@ -339,7 +339,7 @@ export default function CoachFeedbackPage() {
       }
 
       // バックエンドAPIにフィードバックを保存
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       
       // 全体的なフィードバックを保存
       const overallFeedbackResponse = await fetch(`${apiUrl}/coach/add-overall-feedback/${videoId}`, {

@@ -75,7 +75,7 @@ export default function CoachVideosPage() {
         }
 
         // 既存のバックエンドAPIを直接呼び出し
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
         const response = await fetch(`${apiUrl}/videos`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`

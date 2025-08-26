@@ -156,7 +156,7 @@ export default function UserRequestProblemPage() {
             }
             
             // バックエンドのAPIエンドポイント
-                  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       const uploadUrl = `${apiUrl}/upload-video`;
             
             console.log('アップロードURL:', uploadUrl);
