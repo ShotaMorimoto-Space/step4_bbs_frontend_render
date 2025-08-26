@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, X } from 'lucide-react';
-import { SettingsLayout } from '@/components/SettingsLayout';
-import { CommonButton, CommonInput, CommonErrorMessage } from '@/components/CommonLayout';
+import { SettingsLayout } from '../../../../src/components/SettingsLayout';
+import { CommonButton, CommonInput, CommonErrorMessage } from '../../../../src/components/CommonLayout';
 
 export default function ProfileEditPage() {
   const router = useRouter();

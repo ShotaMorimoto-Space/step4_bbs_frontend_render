@@ -12,7 +12,7 @@ import {
   Play,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { UserHomeLayout } from '@/components/UserHomeLayout';
+import { UserHomeLayout } from '../../src/components/UserHomeLayout';
 
 // 動画アイテムの型定義
 type VideoItem = {

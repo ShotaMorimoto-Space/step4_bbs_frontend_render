@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CommonLayout, CommonButton } from '@/components/CommonLayout';
-import { StepText } from '@/components/StepText';
+import { CommonLayout, CommonButton } from '../../src/components/CommonLayout';
+import { StepText } from '../../src/components/StepText';
 
 export default function OnboardingPage() {
   const router = useRouter();
