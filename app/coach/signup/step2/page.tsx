@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CoachLayout } from '../../../src/components/CoachLayout';
-import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '../../../src/components/CoachCommonLayout';
+import { CoachLayout } from '@/components/CoachLayout';
+import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '@/components/CoachCommonLayout';
 import { DollarSign, Clock, MapPin, Star, Target, Users, Calendar } from 'lucide-react';
 
 export default function CoachSignupStep2Page() {

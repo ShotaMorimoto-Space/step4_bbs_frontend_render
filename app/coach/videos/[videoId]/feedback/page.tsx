@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { CoachLayout } from '../../../../src/components/CoachLayout';
-import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '../../../../src/components/CoachCommonLayout';
-import CustomVideoSlider from '../../../../src/components/CustomVideoSlider';
+import { CoachLayout } from '@/components/CoachLayout';
+import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '@/components/CoachCommonLayout';
+import CustomVideoSlider from '@/components/CustomVideoSlider';
 import { 
   ArrowLeft,
   Video,

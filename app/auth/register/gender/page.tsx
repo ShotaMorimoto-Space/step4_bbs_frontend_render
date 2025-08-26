@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CommonLayout, CommonButton, CommonErrorMessage } from '../../../../src/components/CommonLayout';
+import { CommonLayout, CommonButton, CommonErrorMessage } from '@/components/CommonLayout';
 
 export default function GenderSelectionPage() {
   const router = useRouter();
