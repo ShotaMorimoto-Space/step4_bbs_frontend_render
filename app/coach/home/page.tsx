@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CoachLayout } from '@/components/CoachLayout';
 import { CoachButton } from '@/components/CoachCommonLayout';
-import { safeLocalStorage } from '../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 import { 
   Home as HomeIcon, 
   FileText as FileTextIcon, 

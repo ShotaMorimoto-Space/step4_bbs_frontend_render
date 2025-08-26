@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RequestLayout } from '@/components/RequestLayout';
 import { CommonButton } from '@/components/CommonLayout';
-import { safeLocalStorage } from '../../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 
 type Club = 'Driver' | 'Wood' | 'Utility' | 'Iron' | 'Wedge' | 'Putter';
 

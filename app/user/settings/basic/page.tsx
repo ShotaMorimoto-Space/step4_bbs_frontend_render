@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Save, X, User, Camera } from 'lucide-react';
 import { SettingsLayout } from '@/components/SettingsLayout';
 import { CommonButton, CommonInput, CommonErrorMessage } from '@/components/CommonLayout';
-import { safeLocalStorage } from '../../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 
 export default function BasicInfoEditPage() {
   const router = useRouter();

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { SettingsLayout } from '@/components/SettingsLayout';
 import { CommonButton } from '@/components/CommonLayout';
-import { safeLocalStorage } from '../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 
 export default function UserSettingsPage() {
   const router = useRouter();

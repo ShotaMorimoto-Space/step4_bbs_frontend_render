@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AuthService } from '../../../../src/services/auth';
 import { API_ENDPOINTS } from '../../../../src/config/api';
 import { CommonLayout, CommonInput, CommonButton, CommonErrorMessage } from '@/components/CommonLayout';
-import { safeLocalStorage } from '../../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 
 export default function EmailInputPage() {
   const router = useRouter();

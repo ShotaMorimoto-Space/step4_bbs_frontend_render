@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CoachLayout } from '@/components/CoachLayout';
-import { safeLocalStorage } from '../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 import { CoachButton } from '@/components/CoachCommonLayout';
 import { 
   ArrowLeft,

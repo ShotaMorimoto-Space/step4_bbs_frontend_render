@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { CoachLayout } from '@/components/CoachLayout';
-import { safeLocalStorage } from '../../../../utils/storage';
+import { safeLocalStorage } from '@/utils/storage';
 import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '@/components/CoachCommonLayout';
 import CustomVideoSlider from '@/components/CustomVideoSlider';
 import { 
