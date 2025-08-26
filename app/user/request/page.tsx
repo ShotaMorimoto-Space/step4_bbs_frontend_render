@@ -7,8 +7,8 @@ import {
   Loader2
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { RequestLayout } from '../../../../../src/components/RequestLayout';
-import { CommonButton, CommonErrorMessage } from '../../../../../src/components/CommonLayout';
+import { RequestLayout } from '@/components/RequestLayout';
+import { CommonButton, CommonErrorMessage } from '@/components/CommonLayout';
 
 type UploadFile = {
   id: string;

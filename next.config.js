@@ -26,8 +26,18 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   
-  // パス解決の設定（最小限）
+  // パス解決の設定
   webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, '.'),
+      '@/src': path.resolve(__dirname, 'src'),
+      '@/components': path.resolve(__dirname, 'src/components'),
+      '@/services': path.resolve(__dirname, 'src/services'),
+      '@/config': path.resolve(__dirname, 'src/config'),
+      '@/utils': path.resolve(__dirname, 'src/utils'),
+      '@/types': path.resolve(__dirname, 'src/types'),
+    };
     return config;
   },
 }
