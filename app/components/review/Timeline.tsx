@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MoreHorizontal, Edit3, Trash2, Copy, Plus } from 'lucide-react';
-import type { ReviewClip } from '../../types/review';
+import type { ReviewClip } from '../../../src/types/review';
 
 export type TimelineProps = {
   clips: ReviewClip[];

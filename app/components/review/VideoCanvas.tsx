@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { PlayCircle, PauseCircle, Type } from 'lucide-react';
-import type { Annotation, Tool, Point, CircleAnno, LineAnno, AngleAnno, TextAnno } from '../../types/review';
+import type { Annotation, Tool, Point, CircleAnno, LineAnno, AngleAnno, TextAnno } from '../../../src/types/review';
 
 export type VideoCanvasProps = {
   videoUrl: string;

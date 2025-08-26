@@ -1,6 +1,6 @@
 import React from 'react';
 import { Heart, MessageCircle, Clock, Ticket, Pen as Yen } from 'lucide-react';
-import type { RequestItem } from '../../types/requests';
+import type { RequestItem } from '../../../src/types/requests';
 
 interface RequestCardProps {
   request: RequestItem;

@@ -15,8 +15,8 @@ import {
   Video,
   Database
 } from 'lucide-react';
-import { useI18n } from '../../i18n/I18nProvider';
-import { applyTheme, initTheme, setBrightness, type Theme } from '../../theme';
+import { useI18n } from '../../../src/i18n/I18nProvider';
+import { applyTheme, initTheme, setBrightness, type Theme } from '../../../src/theme';
 
 export type SettingsProps = {
   onNavigate: (screen: string) => void;
