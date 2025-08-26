@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CoachLayout } from '../../../src/components/CoachLayout';
-import { CoachButton } from '../../../src/components/CoachCommonLayout';
+import { CoachLayout } from '@/components/CoachLayout';
+import { CoachButton } from '@/components/CoachCommonLayout';
 import { 
   Home as HomeIcon, 
   FileText as FileTextIcon, 

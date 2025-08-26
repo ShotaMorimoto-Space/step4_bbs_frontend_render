@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { CoachLayout } from '../../../src/components/CoachLayout';
-import { CoachButton } from '../../../src/components/CoachCommonLayout';
+import { CoachLayout } from '@/components/CoachLayout';
+import { CoachButton } from '@/components/CoachCommonLayout';
 import { CheckCircle, Mail, User, Star, ArrowRight, Home, Settings } from 'lucide-react';
 
 export default function CoachSignupCompletePage() {

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CommonLayout, CommonButton, CommonInput, CommonErrorMessage } from '../../../src/components/CommonLayout';
+import { CommonLayout, CommonButton, CommonInput, CommonErrorMessage } from '@/components/CommonLayout';
 import { Mail, Lock, User, Trophy } from 'lucide-react';
 
 export default function LoginPage() {
