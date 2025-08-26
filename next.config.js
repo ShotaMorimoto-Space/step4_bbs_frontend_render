@@ -26,8 +26,13 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   
-  // パス解決の設定
+  // パス解決の設定（デバッグ用）
   webpack: (config) => {
+    console.log('🔍 Webpack設定開始...');
+    console.log('📁 現在のディレクトリ:', __dirname);
+    console.log('📁 srcディレクトリの存在確認:', path.resolve(__dirname, 'src'));
+    
+    // パスエイリアスの設定
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, '.'),
@@ -38,6 +43,17 @@ const nextConfig = {
       '@/utils': path.resolve(__dirname, 'src/utils'),
       '@/types': path.resolve(__dirname, 'src/types'),
     };
+    
+    // パス解決の詳細ログ
+    config.resolve.modules = [
+      path.resolve(__dirname, 'src'),
+      path.resolve(__dirname, 'node_modules'),
+      'node_modules'
+    ];
+    
+    console.log('🔧 設定されたエイリアス:', config.resolve.alias);
+    console.log('📂 モジュール解決パス:', config.resolve.modules);
+    
     return config;
   },
 }
