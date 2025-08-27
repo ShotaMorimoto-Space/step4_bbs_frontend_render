@@ -213,12 +213,13 @@ export default function CoachFeedbackPage() {
       // セクショングループを作成または取得
       const sectionGroupData = {
         video_id: videoId,
-        session_id: `session_${Date.now()}`  // 現在時刻をベースにしたセッションIDを生成
+        session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`  // よりユニークなセッションIDを生成
       };
       
       console.log('セクショングループ作成リクエスト:', {
         url: `${apiUrl}/create-section-group/${videoId}`,
-        data: sectionGroupData
+        data: sectionGroupData,
+        requestBody: JSON.stringify(sectionGroupData)
       });
       
       const sectionGroupResponse = await fetch(`${apiUrl}/create-section-group/${videoId}`, {
