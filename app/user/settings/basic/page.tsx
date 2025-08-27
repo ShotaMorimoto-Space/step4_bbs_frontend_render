@@ -163,17 +163,24 @@ export default function BasicInfoEditPage() {
         user_id: actualUserId
       });
 
-      // バックエンドAPIに送信（プロキシ経由）
-      const response = await fetch('/api/auth/user/profile', {
+      // バックエンドAPIのベースURL
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      const profileUrl = `${apiUrl}/auth/user/${actualUserId}/profile`;
+      
+      console.log('プロフィール更新APIを呼び出し:', {
+        url: profileUrl,
+        userId: actualUserId,
+        hasToken: !!accessToken
+      });
+      
+      // バックエンドAPIに送信
+      const response = await fetch(profileUrl, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify({
-          ...updateData,
-          user_id: actualUserId
-        })
+        body: JSON.stringify(updateData)
       });
 
       console.log('APIレスポンス:', {

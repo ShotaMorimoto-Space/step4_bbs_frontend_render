@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserHomeLayout } from '@/components/UserHomeLayout';
+import { safeLocalStorage } from '@/utils/storage';
 
 // 動画アイテムの型定義
 type VideoItem = {
@@ -38,9 +39,9 @@ const ClientOnlyDebugInfo: React.FC = () => {
 
   return (
     <div className="bg-white/10 rounded-lg p-3 lg:p-4 text-white/70 text-xs lg:text-sm">
-      <div>認証状態: {localStorage.getItem('access_token') ? 'ログイン中' : '未ログイン'}</div>
-      <div>メール: {localStorage.getItem('user_email') || 'なし'}</div>
-      <div>ロール: {localStorage.getItem('user_role') || 'なし'}</div>
+          <div>認証状態: {safeLocalStorage.getItem('access_token') ? 'ログイン中' : '未ログイン'}</div>
+    <div>メール: {safeLocalStorage.getItem('user_email') || 'なし'}</div>
+    <div>ロール: {safeLocalStorage.getItem('user_role') || 'なし'}</div>
     </div>
   );
 };
@@ -56,10 +57,10 @@ export default function UserHomePage() {
   // 認証状態の確認とユーザーの動画一覧を取得
   useEffect(() => {
     const checkAuthAndFetchVideos = async () => {
-      const accessToken = localStorage.getItem('access_token');
-      const userEmail = localStorage.getItem('user_email');
-      const userId = localStorage.getItem('user_id');
-      const userType = localStorage.getItem('user_type');
+      const accessToken = safeLocalStorage.getItem('access_token');
+      const userEmail = safeLocalStorage.getItem('user_email');
+      const userId = safeLocalStorage.getItem('user_id');
+      const userType = safeLocalStorage.getItem('user_type');
       
       // デバッグ用：localStorageの内容を確認
       console.log('localStorageの内容:', {
@@ -122,7 +123,18 @@ export default function UserHomePage() {
             isUUID: uuidRegex.test(userId)
           });
           
-          const response = await fetch(`/api/user/videos?user_id=${userId}`, {
+          // バックエンドAPIのベースURL
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+          const videosUrl = `${apiUrl}/user/videos?user_id=${userId}`;
+          
+          console.log('動画取得APIを呼び出し:', {
+            url: videosUrl,
+            userId: userId,
+            hasToken: !!accessToken,
+            isUUID: uuidRegex.test(userId)
+          });
+          
+          const response = await fetch(videosUrl, {
             headers: {
               'Authorization': `Bearer ${accessToken}`
             }
