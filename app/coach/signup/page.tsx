@@ -116,21 +116,21 @@ export default function CoachSignupPage() {
         birthday: '1980-01-01', // デフォルト値（後で修正可能）
         sex: 'male', // デフォルト値（後で修正可能）
         usertype: 'coach',
-        SNS_handle_instagram: '',
-        SNS_handle_X: '',
-        SNS_handle_youtube: '',
-        SNS_handle_facebook: '',
-        SNS_handle_tiktok: '',
-        line_user_id: '',
-        profile_picture_url: '',
-        bio: formData.bio || '',
+        SNS_handle_instagram: null,
+        SNS_handle_X: null,
+        SNS_handle_youtube: null,
+        SNS_handle_facebook: null,
+        SNS_handle_tiktok: null,
+        line_user_id: null,
+        profile_picture_url: null,
+        bio: formData.bio || null,
         hourly_rate: 5000, // デフォルト値
         location_id: '1', // 文字列として送信
         golf_exp: parseInt(formData.experience) || 1, // 数値として送信
-        certification: formData.certification || '',
-        setting_1: '',
-        setting_2: '',
-        setting_3: '',
+        certification: formData.certification || null,
+        setting_1: null,
+        setting_2: null,
+        setting_3: null,
         lesson_rank: 'beginner'
       };
       
