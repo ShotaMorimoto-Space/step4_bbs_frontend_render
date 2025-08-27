@@ -196,7 +196,7 @@ export default function LoginPage() {
 
   // ユーザー登録画面に遷移
   const handleGoToUserSignup = () => {
-    router.push('/auth/register');
+    router.push('/onboarding');
   };
 
   // コーチ登録画面に遷移
