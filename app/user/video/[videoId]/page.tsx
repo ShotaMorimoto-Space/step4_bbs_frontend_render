@@ -313,6 +313,52 @@ export default function VideoDetailPage() {
     return date.toLocaleDateString();
   };
 
+  const fetchFeedbackFromAPI = async () => {
+    const accessToken = safeLocalStorage.getItem('access_token');
+    if (!accessToken) {
+      router.push('/auth/login');
+      return;
+    }
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      const feedbackResponse = await fetch(`${apiUrl}/coach/get-text-feedback/${videoId}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (feedbackResponse.ok) {
+        const feedbackData = await feedbackResponse.json();
+        console.log('フィードバック情報をAPIから取得:', feedbackData);
+
+        // フィードバック情報を設定
+        setVideoDetail(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            has_overall_feedback: feedbackData.has_feedback || false,
+            overall_feedback: feedbackData.overall_feedback || '',
+            overall_feedback_summary: feedbackData.overall_feedback_summary || '',
+            next_training_menu: feedbackData.next_training_menu || '',
+            next_training_menu_summary: feedbackData.next_training_menu_summary || '',
+            session_id: feedbackData.session_id || null,
+            section_group_id: feedbackData.section_group_id || null,
+            has_feedback: feedbackData.has_feedback || false
+          };
+        });
+        
+        alert('フィードバック情報を更新しました');
+      } else {
+        console.warn('フィードバック情報の取得に失敗:', feedbackResponse.status);
+        alert('フィードバック情報の取得に失敗しました');
+      }
+    } catch (error) {
+      console.error('フィードバック情報の取得エラー:', error);
+      alert('フィードバック情報の取得中にエラーが発生しました');
+    }
+  };
+
   return (
     <RequestLayout
       title="動画詳細"
@@ -416,6 +462,19 @@ export default function VideoDetailPage() {
           <div>
             <span className="text-white/70">フィードバック状況:</span>
             <span className="text-white ml-2">{videoDetail.has_feedback ? 'あり' : 'なし'}</span>
+          </div>
+        </div>
+        
+        {/* フィードバック取得ボタン */}
+        <div className="mt-4 pt-4 border-t border-white/20">
+          <button
+            onClick={fetchFeedbackFromAPI}
+            className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+          >
+            フィードバック情報を取得
+          </button>
+          <div className="text-xs text-white/60 mt-2">
+            コーチからのフィードバックがある場合は、このボタンを押して最新情報を取得してください
           </div>
         </div>
       </div>
