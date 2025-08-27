@@ -55,11 +55,18 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
+      console.log('=== ログイン処理開始 ===');
+      console.log('フォームデータ:', formData);
+      
       // バックエンドAPIにログインリクエストを送信
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       const loginUrl = `${apiUrl}/auth/login`;
       
-      console.log('ログインAPI呼び出し:', { url: loginUrl, email: formData.email });
+      console.log('ログインAPI呼び出し:', { 
+        url: loginUrl, 
+        email: formData.email,
+        apiUrl: apiUrl 
+      });
       
       const response = await fetch(loginUrl, {
         method: 'POST',
@@ -70,15 +77,43 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'ログインに失敗しました');
+        console.error('ログインAPIエラー:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url
+        });
+        
+        let errorMessage = 'ログインに失敗しました';
+        try {
+          const errorData = await response.json();
+          console.error('エラーレスポンス詳細:', errorData);
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch (parseError) {
+          console.error('エラーレスポンスのパースに失敗:', parseError);
+          const errorText = await response.text();
+          console.error('エラーレスポンス（テキスト）:', errorText);
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const loginData = await response.json();
       console.log('ログイン成功:', loginData);
+      console.log('ログインレスポンス詳細:', {
+        response: loginData,
+        responseType: typeof loginData,
+        responseKeys: loginData ? Object.keys(loginData) : 'null'
+      });
 
       // バックエンドから返されたユーザー情報を保存
       const { access_token, token_type, user } = loginData;
+      
+      console.log('抽出されたデータ:', {
+        access_token: access_token ? 'あり' : 'なし',
+        token_type,
+        user: user ? 'あり' : 'なし',
+        userKeys: user ? Object.keys(user) : 'null'
+      });
       
       // ユーザー情報をlocalStorageに保存
       safeLocalStorage.setItem('user_type', user.usertype);
@@ -86,12 +121,12 @@ export default function LoginPage() {
       safeLocalStorage.setItem('user_id', user.user_id);
       safeLocalStorage.setItem('access_token', access_token);
         
-        console.log('ログイン成功:', {
-          usertype: user.usertype,
-          email: user.email,
-          id: user.user_id,
-          accessToken: access_token ? '取得済み' : 'なし'
-        });
+      console.log('localStorage保存完了:', {
+        usertype: user.usertype,
+        email: user.email,
+        id: user.user_id,
+        accessToken: access_token ? '取得済み' : 'なし'
+      });
         
         // usertypeに基づいて適切な画面に遷移
         if (user.usertype === 'coach') {
@@ -105,7 +140,18 @@ export default function LoginPage() {
       
     } catch (error) {
       console.error('ログインエラー:', error);
-      setErrors({ submit: 'ログインに失敗しました。もう一度お試しください。' });
+      
+      let errorMessage = 'ログインに失敗しました。もう一度お試しください。';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error('エラーの詳細:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+      }
+      
+      setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
