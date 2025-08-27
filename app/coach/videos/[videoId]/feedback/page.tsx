@@ -79,6 +79,10 @@ export default function CoachFeedbackPage() {
     next_training_menu_summary: '',
     swing_sections: {}
   });
+  
+  // 動画の現在時間と総時間の状態管理
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   // 動画情報の取得
   useEffect(() => {
@@ -209,7 +213,7 @@ export default function CoachFeedbackPage() {
       // セクショングループを作成または取得
       const sectionGroupData = {
         video_id: videoId,
-        session_id: null  // セッションIDは必須だが、ここではnull
+        session_id: `session_${Date.now()}`  // 現在時刻をベースにしたセッションIDを生成
       };
       
       console.log('セクショングループ作成リクエスト:', {
@@ -512,11 +516,16 @@ export default function CoachFeedbackPage() {
                       onTimeUpdate={() => {
                         const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
                         if (videoElement) {
+                          setCurrentTime(videoElement.currentTime);
                           updateTimeDisplay();
                         }
                       }}
                       onLoadedMetadata={() => {
                         console.log('動画メタデータ読み込み完了');
+                        const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                        if (videoElement) {
+                          setDuration(videoElement.duration);
+                        }
                         updateTimeDisplay();
                       }}
                       onError={(e) => {
@@ -570,31 +579,19 @@ export default function CoachFeedbackPage() {
               <input
                 type="range"
                 min="0"
-                max={(() => {
-                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                  return videoElement ? videoElement.duration || 0 : 0;
-                })()}
-                value={(() => {
-                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                  return videoElement ? videoElement.currentTime || 0 : 0;
-                })()}
+                max={duration}
+                value={currentTime}
                 onChange={(e) => {
+                  const newTime = parseFloat(e.target.value);
+                  setCurrentTime(newTime);
                   const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
                   if (videoElement) {
-                    videoElement.currentTime = parseFloat(e.target.value);
+                    videoElement.currentTime = newTime;
                   }
                 }}
                 className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                 style={{
-                  background: `linear-gradient(to right, #f97316 0%, #f97316 ${(() => {
-                    const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                    if (!videoElement) return 0;
-                    return (videoElement.currentTime / videoElement.duration) * 100;
-                  })()}%, #4b5563 ${(() => {
-                    const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                    if (!videoElement) return 0;
-                    return (videoElement.currentTime / videoElement.duration) * 100;
-                  })()}%, #4b5563 100%)`
+                  background: `linear-gradient(to right, #f97316 0%, #f97316 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, #4b5563 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, #4b5563 100%)`
                 }}
               />
             </div>
@@ -628,11 +625,8 @@ export default function CoachFeedbackPage() {
               {/* 時間表示 */}
               <div className="text-white text-sm font-mono bg-gray-700/50 px-3 py-2 rounded-lg">
                 {(() => {
-                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                  if (!videoElement) return '0:00 / 0:00';
-                  
-                  const current = Math.floor(videoElement.currentTime);
-                  const total = Math.floor(videoElement.duration);
+                  const current = Math.floor(currentTime);
+                  const total = Math.floor(duration);
                   const currentMins = Math.floor(current / 60);
                   const currentSecs = current % 60;
                   const totalMins = Math.floor(total / 60);
