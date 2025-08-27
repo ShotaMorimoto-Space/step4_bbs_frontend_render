@@ -89,6 +89,26 @@ export default function CoachSignupPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       const coachSignupUrl = `${apiUrl}/auth/register/coach`;
       
+      // バックエンドのヘルスチェック
+      try {
+        const healthUrl = `${apiUrl.replace('/api/v1', '')}`;
+        console.log('バックエンドヘルスチェック開始:', healthUrl);
+        
+        const healthResponse = await fetch(healthUrl, { method: 'GET' });
+        console.log('ヘルスチェック結果:', {
+          status: healthResponse.status,
+          statusText: healthResponse.statusText,
+          ok: healthResponse.ok
+        });
+        
+        if (healthResponse.ok) {
+          const healthData = await healthResponse.text();
+          console.log('ヘルスチェックレスポンス:', healthData);
+        }
+      } catch (healthError) {
+        console.warn('ヘルスチェック失敗:', healthError);
+      }
+      
       const requestBody = {
         coachname: formData.coachname,
         email: formData.email,
@@ -120,13 +140,40 @@ export default function CoachSignupPage() {
         requestBody: requestBody
       });
       
-      const response = await fetch(coachSignupUrl, {
+      console.log('fetch実行前の詳細:', {
+        url: coachSignupUrl,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody)
+        body: requestBody
       });
+      
+      let response: Response;
+      try {
+        response = await fetch(coachSignupUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        console.log('fetch実行成功:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          url: response.url
+        });
+      } catch (fetchError: any) {
+        console.error('fetch実行エラー詳細:', {
+          error: fetchError,
+          errorType: fetchError?.constructor?.name || 'unknown',
+          errorMessage: fetchError?.message || 'Unknown error',
+          errorStack: fetchError?.stack || 'No stack trace'
+        });
+        throw fetchError;
+      }
       
       if (!response.ok) {
         console.error('コーチ登録APIエラー:', {
@@ -156,10 +203,22 @@ export default function CoachSignupPage() {
       router.push('/coach/signup/complete');
     } catch (error) {
       console.error('コーチ登録エラー:', error);
+      
       let errorMessage = '登録に失敗しました。もう一度お試しください。';
       if (error instanceof Error) {
         errorMessage = error.message;
+        console.error('エラーの詳細:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+        
+        // ネットワークエラーの場合は具体的なメッセージを表示
+        if (error.message === 'Failed to fetch') {
+          errorMessage = 'バックエンドサーバーに接続できません。しばらく時間をおいてから再度お試しください。';
+        }
       }
+      
       setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
