@@ -14,7 +14,9 @@ import {
   Send,
   Star,
   Target,
-  Award
+  Award,
+  Play,
+  Pause
 } from 'lucide-react';
 
 // フィードバックの型定義
@@ -480,23 +482,18 @@ export default function CoachFeedbackPage() {
 
   return (
     <CoachLayout
-      title="添削フィードバック"
+      title="フィードバック"
       subtitle={`${video.user_name} さんの${video.club_type}動画`}
       showBackButton={true}
       onBackClick={() => router.push(`/coach/videos/${videoId}`)}
       backButtonText="動画詳細"
     >
       <div className="space-y-6">
-        {/* 動画プレビューとマークアップ - 最初に配置 */}
+        {/* 動画プレビュー */}
         <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
-          <h3 className="text-white text-xl font-semibold mb-6 flex items-center gap-3">
-            <Video size={24} className="text-orange-400" />
-            動画プレビューとマークアップ
-          </h3>
-          
-          {/* 洗練された動画プレビュー */}
+          {/* レスポンシブ対応の動画プレビュー */}
           <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-xl overflow-hidden mb-4 shadow-inner">
-            <div className="w-full h-[75vh] sm:h-[80vh]">
+            <div className="w-full aspect-video">
               {video.video_url ? (
                 <div className="relative w-full h-full">
                   <video
@@ -525,48 +522,68 @@ export default function CoachFeedbackPage() {
             </div>
           </div>
           
-          {/* カスタムビデオスライダー */}
-          <CustomVideoSlider
-            currentTime={(() => {
-              const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-              return videoElement ? videoElement.currentTime : 0;
-            })()}
-            duration={(() => {
-              const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-              return videoElement ? videoElement.duration : 0;
-            })()}
-            onSeek={(time: number) => {
-              const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-              if (videoElement) {
-                videoElement.currentTime = time;
-              }
-            }}
-            onPlayPause={() => {
-              const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-              if (videoElement) {
-                if (videoElement.paused) {
-                  videoElement.play();
-                } else {
-                  videoElement.pause();
+          {/* シンプルな動画コントロール */}
+          <div className="flex items-center justify-center gap-4 p-4 bg-gray-800/50 rounded-lg">
+            {/* 再生/一時停止ボタン */}
+            <button
+              onClick={() => {
+                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                if (videoElement) {
+                  if (videoElement.paused) {
+                    videoElement.play();
+                  } else {
+                    videoElement.pause();
+                  }
                 }
-              }
-            }}
-            isPlaying={(() => {
-              const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-              return videoElement ? !videoElement.paused : false;
-            })()}
-            onSpeedChange={(speed: number) => {
-              const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-              if (videoElement) {
-                videoElement.playbackRate = speed;
-              }
-            }}
-            playbackSpeed={1}
-            onUndo={() => console.log('Undo')}
-            onRedo={() => console.log('Redo')}
-            onAddKeyframe={() => console.log('Add keyframe')}
-            onConfirm={() => console.log('Confirm')}
-          />
+              }}
+              className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center text-white transition-colors"
+            >
+              {(() => {
+                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                return videoElement && !videoElement.paused ? (
+                  <Pause size={20} />
+                ) : (
+                  <Play size={20} />
+                );
+              })()}
+            </button>
+            
+            {/* 時間表示 */}
+            <div className="text-white text-sm font-mono">
+              {(() => {
+                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                if (!videoElement) return '0:00 / 0:00';
+                
+                const current = Math.floor(videoElement.currentTime);
+                const total = Math.floor(videoElement.duration);
+                const currentMins = Math.floor(current / 60);
+                const currentSecs = current % 60;
+                const totalMins = Math.floor(total / 60);
+                const totalSecs = total % 60;
+                
+                return `${currentMins}:${currentSecs.toString().padStart(2, '0')} / ${totalMins}:${totalSecs.toString().padStart(2, '0')}`;
+              })()}
+            </div>
+            
+            {/* 再生速度調整 */}
+            <select
+              onChange={(e) => {
+                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                if (videoElement) {
+                  videoElement.playbackRate = parseFloat(e.target.value);
+                }
+              }}
+              className="bg-gray-700 text-white text-sm px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-orange-500"
+              defaultValue="1"
+            >
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1">1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </div>
 
           {/* 横スクロール可能なセクション選択 */}
           <div className="overflow-x-auto">
