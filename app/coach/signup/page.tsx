@@ -6,6 +6,26 @@ import { CoachLayout } from '@/components/CoachLayout';
 import { CoachButton, CoachInput, CoachTextarea, CoachSelect } from '@/components/CoachCommonLayout';
 import { User, Mail, Lock, Phone, MapPin, Award, Calendar } from 'lucide-react';
 
+// safeLocalStorageの実装
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+    return null;
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  },
+  removeItem: (key: string): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(key);
+    }
+  }
+};
+
 export default function CoachSignupPage() {
   const router = useRouter();
   
@@ -199,7 +219,67 @@ export default function CoachSignupPage() {
       const result = await response.json();
       console.log('コーチ登録成功:', result);
       
-      // 成功時の処理 - 完了画面に遷移
+      // コーチ登録成功後、自動的にログイン処理を実行
+      try {
+        console.log('自動ログイン処理開始...');
+        
+        // ログインAPIを呼び出し
+        const loginUrl = `${apiUrl}/auth/token`;
+        const loginFormData = new FormData();
+        loginFormData.append('username', formData.email); // emailをusernameとして送信
+        loginFormData.append('password', formData.password);
+        
+        console.log('ログインAPI呼び出し:', {
+          url: loginUrl,
+          email: formData.email
+        });
+        
+        const loginResponse = await fetch(loginUrl, {
+          method: 'POST',
+          body: loginFormData
+        });
+        
+        if (loginResponse.ok) {
+          const loginResult = await loginResponse.json();
+          console.log('自動ログイン成功:', loginResult);
+          
+          // ログイン情報をlocalStorageに保存
+          if (loginResult.access_token) {
+            safeLocalStorage.setItem('access_token', loginResult.access_token);
+            safeLocalStorage.setItem('userType', 'coach');
+            safeLocalStorage.setItem('userEmail', formData.email);
+            
+            // ユーザー詳細情報を取得
+            const meUrl = `${apiUrl}/auth/me`;
+            const meResponse = await fetch(meUrl, {
+              headers: {
+                'Authorization': `Bearer ${loginResult.access_token}`
+              }
+            });
+            
+            if (meResponse.ok) {
+              const userData = await meResponse.json();
+              console.log('ユーザー詳細情報:', userData);
+              
+              // コーチIDを保存
+              if (userData.user && userData.user.coach_id) {
+                safeLocalStorage.setItem('user_id', userData.user.coach_id);
+                safeLocalStorage.setItem('userIdType', 'string');
+              }
+            }
+            
+            // ログイン成功後、直接coach/homeに遷移
+            router.push('/coach/home');
+            return;
+          }
+        } else {
+          console.warn('自動ログイン失敗:', loginResponse.status);
+        }
+      } catch (loginError) {
+        console.warn('自動ログインエラー:', loginError);
+      }
+      
+      // 自動ログインに失敗した場合は完了画面に遷移
       router.push('/coach/signup/complete');
     } catch (error) {
       console.error('コーチ登録エラー:', error);
