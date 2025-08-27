@@ -84,6 +84,19 @@ export default function EmailInputPage() {
       const response = await AuthService.registerUser(requestData);
 
       console.log('User registration successful:', response);
+      console.log('登録レスポンス詳細:', {
+        response: response,
+        responseType: typeof response,
+        responseKeys: response ? Object.keys(response) : 'null'
+      });
+      
+      // 登録成功後のユーザー情報をlocalStorageに保存
+      if (response && response.user_id) {
+        console.log('登録されたユーザーID:', response.user_id);
+        safeLocalStorage.setItem('temp_user_id', response.user_id);
+        safeLocalStorage.setItem('temp_user_email', email);
+        safeLocalStorage.setItem('temp_user_name', fullName);
+      }
       
       // 一時データをクリア
       safeLocalStorage.removeItem('tempFullName');
