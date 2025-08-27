@@ -194,6 +194,33 @@ export default function CoachHomePage() {
             </button>
           </div>
         </div>
+
+        {/* ログアウトボタン */}
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                // localStorageをクリア
+                safeLocalStorage.removeItem('access_token');
+                safeLocalStorage.removeItem('userType');
+                safeLocalStorage.removeItem('userEmail');
+                safeLocalStorage.removeItem('user_id');
+                safeLocalStorage.removeItem('userIdType');
+                
+                // ログインページに遷移
+                router.push('/auth/login');
+              }}
+              className="w-full bg-red-500/20 hover:bg-red-500/30 rounded-xl p-4 text-left transition-colors border border-red-500/40"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">×</span>
+                </div>
+                <span className="text-red-400 font-medium">ログアウト</span>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </CoachLayout>
   );
