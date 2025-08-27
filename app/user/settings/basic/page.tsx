@@ -24,7 +24,7 @@ export default function BasicInfoEditPage() {
 
   // 認証状態の確認とユーザー情報の取得
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuthAndFetchUserInfo = async () => {
       const token = safeLocalStorage.getItem('access_token');
       const email = safeLocalStorage.getItem('user_email');
       const userId = safeLocalStorage.getItem('user_id');
@@ -41,16 +41,68 @@ export default function BasicInfoEditPage() {
         return;
       }
 
-      // ユーザー情報をローカルストレージから取得
-      setUserInfo({
-        name: safeLocalStorage.getItem('user_name') || '',
-        birthDate: safeLocalStorage.getItem('user_birth_date') || '',
-        gender: safeLocalStorage.getItem('user_gender') || '',
-        avatar: safeLocalStorage.getItem('user_avatar') || ''
-      });
+      // バックエンドから最新のユーザー情報を取得
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+        const userInfoUrl = `${apiUrl}/auth/me`;
+        
+        console.log('初期ユーザー情報取得API呼び出し:', userInfoUrl);
+        
+        const response = await fetch(userInfoUrl, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          console.log('初期ユーザー情報取得成功:', userData);
+          
+          // バックエンドから取得したデータで初期化
+          if (userData.role === 'user' && userData.profile) {
+            setUserInfo({
+              name: userData.profile.username || '',
+              birthDate: userData.profile.birthday || '',
+              gender: userData.profile.gender || '',
+              avatar: userData.profile.profile_picture_url || ''
+            });
+            
+            // localStorageにも保存
+            safeLocalStorage.setItem('user_name', userData.profile.username || '');
+            safeLocalStorage.setItem('user_birth_date', userData.profile.birthday || '');
+            safeLocalStorage.setItem('user_gender', userData.profile.gender || '');
+            safeLocalStorage.setItem('user_avatar', userData.profile.profile_picture_url || '');
+            
+            console.log('初期ユーザー情報設定完了:', {
+              name: userData.profile.username,
+              birthDate: userData.profile.birthday,
+              gender: userData.profile.gender,
+              avatar: userData.profile.profile_picture_url ? 'あり' : 'なし'
+            });
+          }
+        } else {
+          console.error('初期ユーザー情報取得失敗:', response.status, response.statusText);
+          // フォールバック: localStorageから取得
+          setUserInfo({
+            name: safeLocalStorage.getItem('user_name') || '',
+            birthDate: safeLocalStorage.getItem('user_birth_date') || '',
+            gender: safeLocalStorage.getItem('user_gender') || '',
+            avatar: safeLocalStorage.getItem('user_avatar') || ''
+          });
+        }
+      } catch (error) {
+        console.error('初期ユーザー情報取得エラー:', error);
+        // フォールバック: localStorageから取得
+        setUserInfo({
+          name: safeLocalStorage.getItem('user_name') || '',
+          birthDate: safeLocalStorage.getItem('user_birth_date') || '',
+          gender: safeLocalStorage.getItem('user_gender') || '',
+          avatar: safeLocalStorage.getItem('user_avatar') || ''
+        });
+      }
     };
 
-    checkAuth();
+    checkAuthAndFetchUserInfo();
   }, [router]);
 
   // アバター画像変更
