@@ -497,12 +497,18 @@ export default function CoachFeedbackPage() {
               <div className="w-full aspect-[9/16]">
                 {video.video_url ? (
                   <div className="relative w-full h-full">
+                    {/* 動画読み込み状態のデバッグ表示 */}
+                    <div className="absolute top-2 left-2 z-10 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      URL: {video.video_url.substring(0, 50)}...
+                    </div>
+                    
                     <video
                       src={video.video_url}
                       className="w-full h-full object-contain"
                       poster={video.thumbnail_url || undefined}
                       id="feedback-video"
-                      crossOrigin="anonymous"
+                      controls={false}
+                      preload="metadata"
                       onTimeUpdate={() => {
                         const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
                         if (videoElement) {
@@ -510,7 +516,40 @@ export default function CoachFeedbackPage() {
                         }
                       }}
                       onLoadedMetadata={() => {
+                        console.log('動画メタデータ読み込み完了');
                         updateTimeDisplay();
+                      }}
+                      onError={(e) => {
+                        console.error('動画読み込みエラー:', e);
+                        console.error('動画URL:', video.video_url);
+                        console.error('動画要素:', e.target);
+                        
+                        // エラー時にサムネイル画像を表示
+                        const videoElement = e.target as HTMLVideoElement;
+                        const videoContainer = videoElement?.parentElement;
+                        if (videoContainer) {
+                          videoContainer.innerHTML = `
+                            <div class="w-full h-full flex flex-col items-center justify-center bg-gray-800 rounded-lg">
+                              <img src="${video.thumbnail_url}" alt="動画サムネイル" class="w-full h-full object-cover rounded-lg" />
+                              <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <div class="text-center">
+                                  <div class="text-white/60 mx-auto mb-2">🎥</div>
+                                  <p class="text-white/80 text-sm">動画の読み込みに失敗しました</p>
+                                  <p class="text-white/60 text-xs mt-1">サムネイル画像を表示中</p>
+                                </div>
+                              </div>
+                            </div>
+                          `;
+                        }
+                      }}
+                      onLoadStart={() => {
+                        console.log('動画読み込み開始:', video.video_url);
+                      }}
+                      onCanPlay={() => {
+                        console.log('動画再生可能:', video.video_url);
+                      }}
+                      onLoadedData={() => {
+                        console.log('動画データ読み込み完了');
                       }}
                     />
                   </div>
@@ -700,7 +739,7 @@ export default function CoachFeedbackPage() {
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                   selectedSection ? 'bg-white/20' : 'bg-gray-400'
                 }`}>
-                  <span className="text-sm font-bold">📸</span>
+                  <span className="text-sm font-bold"></span>
                 </div>
                 <span>
                   {selectedSection 
