@@ -385,28 +385,69 @@ export default function CoachFeedbackPage() {
     try {
       setSaving(true);
       
-      // 実際のAPI呼び出し
-      // const response = await fetch(`/api/coach/videos/${videoId}/feedback/submit`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localToken.getItem('access_token')}`
-      //   },
-      //   body: JSON.stringify(feedback)
-      // });
+      const accessToken = safeLocalStorage.getItem('access_token');
+      if (!accessToken) {
+        alert('認証トークンがありません');
+        return;
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       
-      // モック送信
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 1. 全体的なフィードバックを保存（新しいAPIエンドポイント）
+      const overallFeedbackResponse = await fetch(`${apiUrl}/coach/add-text-feedback/${videoId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          overall_feedback: feedback.overall_feedback,
+          overall_feedback_summary: feedback.overall_feedback_summary,
+          next_training_menu: feedback.next_training_menu,
+          next_training_menu_summary: feedback.next_training_menu_summary
+        })
+      });
       
-      console.log('フィードバック送信:', feedback);
-      alert('フィードバックを送信しました');
+      if (!overallFeedbackResponse.ok) {
+        const errorData = await overallFeedbackResponse.text();
+        console.error('全体的フィードバック保存エラー:', overallFeedbackResponse.status, errorData);
+        throw new Error(`全体的フィードバックの保存に失敗しました: ${overallFeedbackResponse.status}`);
+      }
+
+      const feedbackResult = await overallFeedbackResponse.json();
+      console.log('フィードバック保存結果:', feedbackResult);
+      
+      // 2. 動画のステータスを「対応済み」に更新（個別のAPI呼び出し）
+      const statusUpdateResponse = await fetch(`${apiUrl}/coach/update-video-status/${videoId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          status: 'completed',
+          feedback_created_at: new Date().toISOString()
+        })
+      });
+
+      if (statusUpdateResponse.ok) {
+        const statusResult = await statusUpdateResponse.json();
+        console.log('ステータス更新結果:', statusResult);
+      } else {
+        console.warn('ステータス更新に失敗しましたが、フィードバックは保存されています');
+        const errorData = await statusUpdateResponse.text();
+        console.error('ステータス更新エラー:', statusUpdateResponse.status, errorData);
+      }
+      
+      console.log('フィードバック送信完了:', feedback);
+      alert('フィードバックを送信し、ステータスを更新しました');
       
       // 動画一覧に戻る
       router.push('/coach/videos');
       
     } catch (err) {
       console.error('送信エラー:', err);
-      alert('送信に失敗しました');
+      alert('送信に失敗しました: ' + err);
     } finally {
       setSaving(false);
     }

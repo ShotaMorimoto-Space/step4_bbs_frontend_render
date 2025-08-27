@@ -15,6 +15,11 @@ type VideoDetail = {
   swing_form: string;
   swing_note: string;
   has_feedback: boolean;
+  has_overall_feedback?: boolean;
+  overall_feedback?: string;
+  overall_feedback_summary?: string;
+  next_training_menu?: string;
+  next_training_menu_summary?: string;
   feedback_sections: Array<{
     section_id: string;
     time_range: string;
@@ -23,6 +28,9 @@ type VideoDetail = {
     comment_summary: string;
     full_comment?: string;
   }>;
+  // セッション情報を追加
+  session_id: string | null;
+  section_group_id: string | null;
 };
 
 export default function VideoDetailPage() {
@@ -45,8 +53,10 @@ export default function VideoDetailPage() {
       }
 
       try {
-        // まず、動画の基本情報を取得
-        const videoResponse = await fetch(`/api/video/${videoId}`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+        
+        // 1. 動画の基本情報を取得
+        const videoResponse = await fetch(`${apiUrl}/video/${videoId}/with-sections`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -56,33 +66,116 @@ export default function VideoDetailPage() {
           const videoData = await videoResponse.json();
           console.log('取得した動画基本情報:', videoData);
           
-          // フィードバック情報も取得
-          const feedbackResponse = await fetch(`/api/video/${videoId}/feedback-summary`, {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`
+          // 2. フィードバック情報も取得（セクショングループから）
+          let feedbackData: any = { feedback_sections: [], total_sections: 0 };
+          
+          console.log('videoDataの構造:', Object.keys(videoData));
+          console.log('section_groupsの存在確認:', 'section_groups' in videoData);
+          console.log('section_groupsの値:', videoData.section_groups);
+          
+          if (videoData.section_groups && videoData.section_groups.length > 0) {
+            console.log('セクショングループが見つかりました:', videoData.section_groups);
+            const sectionGroup = videoData.section_groups[0]; // 最新のセクショングループ
+            
+            console.log('最初のセクショングループ:', sectionGroup);
+            console.log('セクショングループのキー:', Object.keys(sectionGroup));
+            
+            // 全体的なフィードバック情報
+            if (sectionGroup.overall_feedback || sectionGroup.next_training_menu) {
+              feedbackData.has_overall_feedback = true;
+              feedbackData.overall_feedback = sectionGroup.overall_feedback;
+              feedbackData.overall_feedback_summary = sectionGroup.overall_feedback_summary;
+              feedbackData.next_training_menu = sectionGroup.next_training_menu;
+              feedbackData.next_training_menu_summary = sectionGroup.next_training_menu_summary;
+              console.log('全体的フィードバック情報を設定:', feedbackData);
+            } else {
+              console.log('全体的フィードバック情報がありません');
             }
-          });
-
-          let feedbackData = { feedback_sections: [], total_sections: 0 };
-          if (feedbackResponse.ok) {
-            feedbackData = await feedbackResponse.json();
-            console.log('取得したフィードバック情報:', feedbackData);
+            
+            // セクション別フィードバック情報
+            if (sectionGroup.sections && sectionGroup.sections.length > 0) {
+              feedbackData.feedback_sections = sectionGroup.sections.map((section: any) => ({
+                section_id: section.section_id,
+                time_range: `${section.start_sec}s - ${section.end_sec}s`,
+                tags: section.tags || [],
+                has_comment: !!section.coach_comment,
+                comment_summary: section.coach_comment_summary || '',
+                full_comment: section.coach_comment || ''
+              }));
+              feedbackData.total_sections = sectionGroup.sections.length;
+              console.log('セクション別フィードバック情報を設定:', feedbackData);
+            } else {
+              console.log('セクション別フィードバック情報がありません');
+            }
+          } else {
+            console.log('セクショングループが見つかりません。videoData:', videoData);
+            console.log('section_groups:', videoData.section_groups);
+            
+            // 代替手段: 個別のAPIエンドポイントからフィードバックを取得
+            console.log('代替手段として個別のフィードバック取得を試行します');
+            
+            try {
+              // 3. 個別のフィードバック取得APIを呼び出し
+              const feedbackResponse = await fetch(`${apiUrl}/video/${videoId}/feedback-summary`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                }
+              });
+              
+              if (feedbackResponse.ok) {
+                const feedbackSummary = await feedbackResponse.json();
+                console.log('個別フィードバック取得結果:', feedbackSummary);
+                
+                // フィードバック情報を設定
+                feedbackData = {
+                  feedback_sections: feedbackSummary.feedback_sections || [],
+                  total_sections: feedbackSummary.total_sections || 0,
+                  has_overall_feedback: feedbackSummary.has_overall_feedback || false,
+                  overall_feedback: feedbackSummary.overall_feedback || '',
+                  overall_feedback_summary: feedbackSummary.overall_feedback_summary || '',
+                  next_training_menu: feedbackSummary.next_training_menu || '',
+                  next_training_menu_summary: feedbackSummary.next_training_menu_summary || ''
+                };
+                
+                console.log('個別フィードバックから構築されたデータ:', feedbackData);
+              } else {
+                console.warn('個別フィードバック取得に失敗:', feedbackResponse.status);
+              }
+            } catch (error) {
+              console.error('個別フィードバック取得エラー:', error);
+            }
           }
+          
+          console.log('取得したフィードバック情報:', feedbackData);
           
           // データをVideoDetail型に変換
           const video: VideoDetail = {
-            video_id: videoData.video_id || videoId,
-            thumbnail_url: videoData.thumbnail_url || videoData.thumbnail_file || '',
-            video_url: videoData.video_url || videoData.video_file || '',
-            upload_date: videoData.upload_date || videoData.created_at || '',
+            video_id: videoData.video_id,
+            thumbnail_url: videoData.thumbnail_url,
+            video_url: videoData.video_url,
+            upload_date: videoData.upload_date,
             club_type: videoData.club_type || '',
             swing_form: videoData.swing_form || '',
             swing_note: videoData.swing_note || '',
             has_feedback: feedbackData.total_sections > 0,
-            feedback_sections: feedbackData.feedback_sections || []
+            has_overall_feedback: feedbackData.has_overall_feedback || false,
+            overall_feedback: feedbackData.overall_feedback || '',
+            overall_feedback_summary: feedbackData.overall_feedback_summary || '',
+            next_training_menu: feedbackData.next_training_menu || '',
+            next_training_menu_summary: feedbackData.next_training_menu_summary || '',
+            feedback_sections: feedbackData.feedback_sections || [],
+            // セッション情報を追加
+            session_id: videoData.section_groups?.[0]?.session_id || null,
+            section_group_id: videoData.section_groups?.[0]?.section_group_id || null
           };
           
           console.log('構築された動画詳細:', video);
+          console.log('セッション情報:', {
+            session_id: video.session_id,
+            section_group_id: video.section_group_id,
+            has_section_groups: !!videoData.section_groups,
+            section_groups_count: videoData.section_groups?.length || 0
+          });
           setVideoDetail(video);
         } else {
           console.error('動画基本情報の取得に失敗:', videoResponse.status);
@@ -215,6 +308,11 @@ export default function VideoDetailPage() {
     );
   }
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   return (
     <RequestLayout
       title="動画詳細"
@@ -285,31 +383,40 @@ export default function VideoDetailPage() {
           <div>サムネイルURL: {videoDetail.thumbnail_url || 'なし'}</div>
           <div>変換後の動画URL: {videoDetail.video_url ? getFullVideoUrl(videoDetail.video_url) : 'なし'}</div>
           <div>変換後のサムネイルURL: {videoDetail.thumbnail_url ? getFullThumbnailUrl(videoDetail.thumbnail_url) : 'なし'}</div>
+          <div>セッションID: {videoDetail.session_id || 'なし'}</div>
+          <div>セクショングループID: {videoDetail.section_group_id || 'なし'}</div>
+          <div>セクショングループが存在: {videoDetail.session_id && videoDetail.section_group_id ? 'はい' : 'いいえ'}</div>
         </div>
       </div>
 
       {/* 動画情報 */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/30">
+      <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-6">
         <h2 className="text-white text-lg font-medium mb-4">動画情報</h2>
-        <div className="space-y-3 text-white/90">
-          <div className="flex items-center gap-2">
-            <Clock size={16} className="text-violet-400" />
-            <span>アップロード日: {videoDetail.upload_date}</span>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-white/70">クラブ:</span>
+            <span className="text-white ml-2">{videoDetail.club_type || '未設定'}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Star size={16} className="text-violet-400" />
-            <span>クラブ: {videoDetail.club_type || '未設定'}</span>
+          <div>
+            <span className="text-white/70">スイングフォーム:</span>
+            <span className="text-white ml-2">{videoDetail.swing_form || '未設定'}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <MessageCircle size={16} className="text-violet-400" />
-            <span>スイング形式: {videoDetail.swing_form || '未設定'}</span>
+          <div>
+            <span className="text-white/70">アップロード日:</span>
+            <span className="text-white ml-2">{formatDate(videoDetail.upload_date)}</span>
           </div>
-          {videoDetail.swing_note && (
-            <div className="pt-2 border-t border-white/20">
-              <div className="text-sm text-white/70 mb-1">メモ:</div>
-              <div className="text-white/90">{videoDetail.swing_note}</div>
-            </div>
-          )}
+          <div>
+            <span className="text-white/70">セッションID:</span>
+            <span className="text-white ml-2">{videoDetail.session_id || 'なし'}</span>
+          </div>
+          <div>
+            <span className="text-white/70">セクショングループID:</span>
+            <span className="text-white ml-2">{videoDetail.section_group_id || 'なし'}</span>
+          </div>
+          <div>
+            <span className="text-white/70">フィードバック状況:</span>
+            <span className="text-white ml-2">{videoDetail.has_feedback ? 'あり' : 'なし'}</span>
+          </div>
         </div>
       </div>
 
@@ -325,18 +432,35 @@ export default function VideoDetailPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* 全体的なディスクリプション */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-                <MessageCircle size={20} className="text-violet-400" />
-                全体的な評価
-              </h3>
-              <div className="text-white/90 text-sm leading-relaxed">
-                この動画では、スイングの基本的なフォームは良好ですが、いくつかの改善点があります。
-                特に、バックスイングでの手首の角度と、ダウンスイングでの体重移動に注目して練習することをお勧めします。
-                <span className="text-violet-300 font-medium">Read More...</span>
+            {/* 全体的なフィードバック */}
+            {videoDetail.has_overall_feedback && (
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+                  <MessageCircle size={20} className="text-violet-400" />
+                  全体的なフィードバック
+                </h3>
+                {videoDetail.overall_feedback && (
+                  <div className="text-white/90 text-sm leading-relaxed mb-3">
+                    {videoDetail.overall_feedback}
+                  </div>
+                )}
+                {videoDetail.overall_feedback_summary && (
+                  <div className="text-white/80 text-xs mb-3 p-2 bg-white/5 rounded">
+                    <strong>要約:</strong> {videoDetail.overall_feedback_summary}
+                  </div>
+                )}
+                {videoDetail.next_training_menu && (
+                  <div className="text-violet-300 text-sm p-2 bg-violet-500/10 rounded border border-violet-500/20">
+                    <strong>次の練習メニュー:</strong> {videoDetail.next_training_menu}
+                  </div>
+                )}
+                {videoDetail.next_training_menu_summary && (
+                  <div className="text-violet-300 text-xs p-2 bg-violet-500/10 rounded border border-violet-500/20">
+                    <strong>練習メニュー要約:</strong> {videoDetail.next_training_menu_summary}
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             {/* カテゴリ別フィードバック */}
             <div>
