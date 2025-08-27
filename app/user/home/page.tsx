@@ -108,8 +108,14 @@ export default function UserHomePage() {
             return;
           }
           
-          // アクセストークンの形式を検証
-          if (!accessToken.startsWith('mock_token_')) {
+          // アクセストークンの形式を検証（JWT形式に対応）
+          console.log('トークン検証:', {
+            hasToken: !!accessToken,
+            tokenLength: accessToken ? accessToken.length : 0,
+            tokenStart: accessToken ? accessToken.substring(0, 20) + '...' : 'なし'
+          });
+          
+          if (!accessToken || accessToken.length < 50) {
             console.error('無効なaccess_token形式:', accessToken);
             setError('アクセストークンの形式が無効です');
             setLoading(false);
