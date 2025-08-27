@@ -89,9 +89,35 @@ export default function CoachSignupPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       const coachSignupUrl = `${apiUrl}/auth/register/coach`;
       
+      const requestBody = {
+        coachname: formData.coachname,
+        email: formData.email,
+        password: formData.password,
+        birthday: '1980-01-01', // デフォルト値（後で修正可能）
+        sex: 'male', // デフォルト値（後で修正可能）
+        usertype: 'coach',
+        SNS_handle_instagram: '',
+        SNS_handle_X: '',
+        SNS_handle_youtube: '',
+        SNS_handle_facebook: '',
+        SNS_handle_tiktok: '',
+        line_user_id: '',
+        profile_picture_url: '',
+        bio: formData.bio || '',
+        hourly_rate: 5000, // デフォルト値
+        location_id: '1', // 文字列として送信
+        golf_exp: parseInt(formData.experience) || 1, // 数値として送信
+        certification: formData.certification || '',
+        setting_1: '',
+        setting_2: '',
+        setting_3: '',
+        lesson_rank: 'beginner'
+      };
+      
       console.log('コーチ登録API呼び出し:', {
         url: coachSignupUrl,
-        data: formData
+        formData: formData,
+        requestBody: requestBody
       });
       
       const response = await fetch(coachSignupUrl, {
@@ -99,35 +125,28 @@ export default function CoachSignupPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          coachname: formData.coachname,
-          email: formData.email,
-          password: formData.password,
-          birthday: '1980-01-01', // デフォルト値（後で修正可能）
-          sex: 'male', // デフォルト値（後で修正可能）
-          usertype: 'coach',
-          SNS_handle_instagram: '',
-          SNS_handle_X: '',
-          SNS_handle_youtube: '',
-          SNS_handle_facebook: '',
-          SNS_handle_tiktok: '',
-          line_user_id: '',
-          profile_picture_url: '',
-          bio: formData.bio,
-          hourly_rate: 5000, // デフォルト値
-          location_id: 1, // デフォルト値
-          golf_exp: formData.experience,
-          certification: formData.certification,
-          setting_1: '',
-          setting_2: '',
-          setting_3: '',
-          lesson_rank: 'beginner'
-        })
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'コーチ登録に失敗しました');
+        console.error('コーチ登録APIエラー:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url
+        });
+        
+        let errorMessage = 'コーチ登録に失敗しました';
+        try {
+          const errorData = await response.json();
+          console.error('エラーレスポンス詳細:', errorData);
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch (parseError) {
+          console.error('エラーレスポンスのパースに失敗:', parseError);
+          const errorText = await response.text();
+          console.error('エラーレスポンス（テキスト）:', errorText);
+        }
+        
+        throw new Error(errorMessage);
       }
       
       const result = await response.json();
