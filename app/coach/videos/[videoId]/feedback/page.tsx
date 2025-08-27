@@ -393,26 +393,49 @@ export default function CoachFeedbackPage() {
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       
-      // 1. 全体的なフィードバックを保存（既存のadd-text-feedbackエンドポイントを使用）
+      // 1. 全体的なフィードバックを保存（既存のAPIエンドポイントを使用）
       console.log('フィードバック送信開始:', {
         videoId,
         feedback: feedback,
-        apiUrl: `${apiUrl}/coach/add-text-feedback`
+        apiUrl: `${apiUrl}/coach/add-overall-feedback`
       });
       
-      // 既存のadd-text-feedbackエンドポイントを使用
-      const overallFeedbackResponse = await fetch(`${apiUrl}/coach/add-text-feedback/${videoId}`, {
+      // 既存のAPIエンドポイントを使用（音声ファイルベース）
+      const formData = new FormData();
+      formData.append('feedback_type', 'overall');
+      formData.append('audio_file', new Blob(['dummy audio data'], { type: 'audio/wav' }), 'feedback.wav');
+      
+      // セクショングループIDが必要なので、まずセクショングループを作成
+      const sectionGroupResponse = await fetch(`${apiUrl}/coach/create-section-group/${videoId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
-          overall_feedback: feedback.overall_feedback,
-          overall_feedback_summary: feedback.overall_feedback_summary,
-          next_training_menu: feedback.next_training_menu,
-          next_training_menu_summary: feedback.next_training_menu_summary
+          video_id: videoId,
+          session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         })
+      });
+      
+      if (!sectionGroupResponse.ok) {
+        const errorData = await sectionGroupResponse.text();
+        console.error('セクショングループ作成エラー:', sectionGroupResponse.status, errorData);
+        throw new Error(`セクショングループの作成に失敗しました: ${sectionGroupResponse.status}`);
+      }
+      
+      const sectionGroupResult = await sectionGroupResponse.json();
+      console.log('セクショングループ作成結果:', sectionGroupResult);
+      
+      const sectionGroupId = sectionGroupResult.section_group_id;
+      
+      // 全体的フィードバックを保存
+      const overallFeedbackResponse = await fetch(`${apiUrl}/coach/add-overall-feedback/${sectionGroupId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: formData
       });
       
       if (!overallFeedbackResponse.ok) {
@@ -424,7 +447,7 @@ export default function CoachFeedbackPage() {
       const feedbackResult = await overallFeedbackResponse.json();
       console.log('フィードバック保存結果:', feedbackResult);
       
-      // 2. 動画のステータスを「対応済み」に更新（個別のAPI呼び出し）
+      // 2. 動画のステータスを「対応済み」に更新
       const statusUpdateResponse = await fetch(`${apiUrl}/coach/update-video-status/${videoId}`, {
         method: 'POST',
         headers: {
