@@ -152,11 +152,18 @@ export default function BasicInfoEditPage() {
 
       // バックエンドに送信するデータを準備
       const updateData = {
-        username: userInfo.name,
-        gender: userInfo.gender,
-        birthday: userInfo.birthDate,
-        profile_picture_url: userInfo.avatar
+        username: userInfo.name || null,
+        gender: userInfo.gender || null,
+        birthday: userInfo.birthDate ? new Date(userInfo.birthDate).toISOString().split('T')[0] : null,
+        profile_picture_url: userInfo.avatar || null
       };
+
+      // 空文字列をnullに変換
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === '') {
+          (updateData as any)[key] = null;
+        }
+      });
 
       console.log('送信データ:', {
         ...updateData,
