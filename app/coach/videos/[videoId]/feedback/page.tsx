@@ -491,107 +491,181 @@ export default function CoachFeedbackPage() {
       <div className="space-y-6">
         {/* 動画プレビュー */}
         <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
-          {/* レスポンシブ対応の動画プレビュー */}
+          {/* 縦長動画対応の動画プレビュー */}
           <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-xl overflow-hidden mb-4 shadow-inner">
-            <div className="w-full aspect-video">
-              {video.video_url ? (
-                <div className="relative w-full h-full">
-                  <video
-                    src={video.video_url}
-                    className="w-full h-full object-contain"
-                    poster={video.thumbnail_url || undefined}
-                    id="feedback-video"
-                    crossOrigin="anonymous"
-                    onTimeUpdate={() => {
-                      const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                      if (videoElement) {
+            <div className="w-full max-w-md mx-auto">
+              <div className="w-full aspect-[9/16]">
+                {video.video_url ? (
+                  <div className="relative w-full h-full">
+                    <video
+                      src={video.video_url}
+                      className="w-full h-full object-contain"
+                      poster={video.thumbnail_url || undefined}
+                      id="feedback-video"
+                      crossOrigin="anonymous"
+                      onTimeUpdate={() => {
+                        const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                        if (videoElement) {
+                          updateTimeDisplay();
+                        }
+                      }}
+                      onLoadedMetadata={() => {
                         updateTimeDisplay();
-                      }
-                    }}
-                    onLoadedMetadata={() => {
-                      updateTimeDisplay();
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Video size={64} className="text-white/40" />
-                  <p className="text-white/60 ml-2">動画がありません</p>
-                </div>
-              )}
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Video size={64} className="text-white/40" />
+                    <p className="text-white/60 ml-2">動画がありません</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
-          {/* シンプルな動画コントロール */}
-          <div className="flex items-center justify-center gap-4 p-4 bg-gray-800/50 rounded-lg">
-            {/* 再生/一時停止ボタン */}
-            <button
-              onClick={() => {
-                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                if (videoElement) {
-                  if (videoElement.paused) {
-                    videoElement.play();
-                  } else {
-                    videoElement.pause();
+          {/* 動画コントロールとスライダー */}
+          <div className="space-y-4 p-4 bg-gray-800/50 rounded-lg">
+            {/* 動画スライダー */}
+            <div className="w-full">
+              <input
+                type="range"
+                min="0"
+                max={(() => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  return videoElement ? videoElement.duration || 0 : 0;
+                })()}
+                value={(() => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  return videoElement ? videoElement.currentTime || 0 : 0;
+                })()}
+                onChange={(e) => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  if (videoElement) {
+                    videoElement.currentTime = parseFloat(e.target.value);
                   }
-                }
-              }}
-              className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center text-white transition-colors"
-            >
-              {(() => {
-                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                return videoElement && !videoElement.paused ? (
-                  <Pause size={20} />
-                ) : (
-                  <Play size={20} />
-                );
-              })()}
-            </button>
-            
-            {/* 時間表示 */}
-            <div className="text-white text-sm font-mono">
-              {(() => {
-                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                if (!videoElement) return '0:00 / 0:00';
-                
-                const current = Math.floor(videoElement.currentTime);
-                const total = Math.floor(videoElement.duration);
-                const currentMins = Math.floor(current / 60);
-                const currentSecs = current % 60;
-                const totalMins = Math.floor(total / 60);
-                const totalSecs = total % 60;
-                
-                return `${currentMins}:${currentSecs.toString().padStart(2, '0')} / ${totalMins}:${totalSecs.toString().padStart(2, '0')}`;
-              })()}
+                }}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                style={{
+                  background: `linear-gradient(to right, #f97316 0%, #f97316 ${(() => {
+                    const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                    if (!videoElement) return 0;
+                    return (videoElement.currentTime / videoElement.duration) * 100;
+                  })()}%, #4b5563 ${(() => {
+                    const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                    if (!videoElement) return 0;
+                    return (videoElement.currentTime / videoElement.duration) * 100;
+                  })()}%, #4b5563 100%)`
+                }}
+              />
             </div>
             
-            {/* 再生速度調整 */}
-            <select
-              onChange={(e) => {
-                const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
-                if (videoElement) {
-                  videoElement.playbackRate = parseFloat(e.target.value);
-                }
-              }}
-              className="bg-gray-700 text-white text-sm px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-orange-500"
-              defaultValue="1"
-            >
-              <option value="0.5">0.5x</option>
-              <option value="0.75">0.75x</option>
-              <option value="1">1x</option>
-              <option value="1.25">1.25x</option>
-              <option value="1.5">1.5x</option>
-              <option value="2">2x</option>
-            </select>
+            {/* コントロールボタン */}
+            <div className="flex items-center justify-center gap-4">
+              {/* 再生/一時停止ボタン */}
+              <button
+                onClick={() => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  if (videoElement) {
+                    if (videoElement.paused) {
+                      videoElement.play();
+                    } else {
+                      videoElement.pause();
+                    }
+                  }
+                }}
+                className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center text-white transition-colors shadow-lg"
+              >
+                {(() => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  return videoElement && !videoElement.paused ? (
+                    <Pause size={20} />
+                  ) : (
+                    <Play size={20} />
+                  );
+                })()}
+              </button>
+              
+              {/* 時間表示 */}
+              <div className="text-white text-sm font-mono bg-gray-700/50 px-3 py-2 rounded-lg">
+                {(() => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  if (!videoElement) return '0:00 / 0:00';
+                  
+                  const current = Math.floor(videoElement.currentTime);
+                  const total = Math.floor(videoElement.duration);
+                  const currentMins = Math.floor(current / 60);
+                  const currentSecs = current % 60;
+                  const totalMins = Math.floor(total / 60);
+                  const totalSecs = total % 60;
+                  
+                  return `${currentMins}:${currentSecs.toString().padStart(2, '0')} / ${totalMins}:${totalSecs.toString().padStart(2, '0')}`;
+                })()}
+              </div>
+              
+              {/* 再生速度調整 */}
+              <select
+                onChange={(e) => {
+                  const videoElement = document.getElementById('feedback-video') as HTMLVideoElement;
+                  if (videoElement) {
+                    videoElement.playbackRate = parseFloat(e.target.value);
+                  }
+                }}
+                className="bg-gray-700 text-white text-sm px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-orange-500"
+                defaultValue="1"
+              >
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1">1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
+            </div>
           </div>
 
           {/* 横スクロール可能なセクション選択 */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto mt-8">
             <div className="flex gap-2 min-w-max mb-4">
               {SWING_SECTIONS.map((section) => (
                 <button
                   key={section.key}
-                  onClick={() => selectSection(section.key)}
+                  onClick={() => {
+                    // トグル機能: 既に選択されている場合は選択解除
+                    if (feedback.swing_sections[section.key]?.selected) {
+                      setFeedback(prev => ({
+                        ...prev,
+                        swing_sections: {
+                          ...prev.swing_sections,
+                          [section.key]: {
+                            ...prev.swing_sections[section.key],
+                            selected: false
+                          }
+                        }
+                      }));
+                      setSelectedSection(null);
+                    } else {
+                      // 他のセクションの選択を解除して、このセクションを選択
+                      const updatedSections = { ...feedback.swing_sections };
+                      Object.keys(updatedSections).forEach(key => {
+                        if (updatedSections[key]) {
+                          updatedSections[key].selected = false;
+                        }
+                      });
+                      
+                      setFeedback(prev => ({
+                        ...prev,
+                        swing_sections: {
+                          ...updatedSections,
+                          [section.key]: {
+                            ...prev.swing_sections[section.key],
+                            selected: true
+                          }
+                        }
+                      }));
+                      setSelectedSection(section.key);
+                    }
+                  }}
                   className={`px-4 py-2 text-white text-sm rounded-lg transition-all duration-200 whitespace-nowrap ${
                     feedback.swing_sections[section.key]?.selected
                       ? 'bg-orange-500 shadow-lg scale-105'
@@ -616,16 +690,25 @@ export default function CoachFeedbackPage() {
             <button
               onClick={() => selectedSection && captureFrame(selectedSection)}
               disabled={!selectedSection}
-              className={`px-6 py-3 text-white font-medium rounded-lg transition-all duration-200 ${
+              className={`px-8 py-4 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 ${
                 selectedSection
-                  ? 'bg-blue-500 hover:bg-blue-600'
-                  : 'bg-gray-500 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/25'
+                  : 'bg-gradient-to-r from-gray-500 to-gray-600 cursor-not-allowed'
               }`}
             >
-              {selectedSection 
-                ? `${SWING_SECTIONS.find(s => s.key === selectedSection)?.label}をキャプチャ` 
-                : 'セクションを選択してください'
-              }
+              <div className="flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  selectedSection ? 'bg-white/20' : 'bg-gray-400'
+                }`}>
+                  <span className="text-sm font-bold">📸</span>
+                </div>
+                <span>
+                  {selectedSection 
+                    ? `${SWING_SECTIONS.find(s => s.key === selectedSection)?.label}をキャプチャ` 
+                    : 'セクションを選択してください'
+                  }
+                </span>
+              </div>
             </button>
           </div>
         </div>
