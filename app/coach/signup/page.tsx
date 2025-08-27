@@ -85,14 +85,63 @@ export default function CoachSignupPage() {
     setIsSubmitting(true);
 
     try {
-      // TODO: 実際のAPI呼び出しを実装
-      console.log('コーチ登録データ:', formData);
+      // コーチ登録APIを呼び出し
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      const coachSignupUrl = `${apiUrl}/auth/register/coach`;
       
-      // 成功時の処理 - 直接完了画面に遷移
+      console.log('コーチ登録API呼び出し:', {
+        url: coachSignupUrl,
+        data: formData
+      });
+      
+      const response = await fetch(coachSignupUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          coachname: formData.coachname,
+          email: formData.email,
+          password: formData.password,
+          birthday: '1980-01-01', // デフォルト値（後で修正可能）
+          sex: 'male', // デフォルト値（後で修正可能）
+          usertype: 'coach',
+          SNS_handle_instagram: '',
+          SNS_handle_X: '',
+          SNS_handle_youtube: '',
+          SNS_handle_facebook: '',
+          SNS_handle_tiktok: '',
+          line_user_id: '',
+          profile_picture_url: '',
+          bio: formData.bio,
+          hourly_rate: 5000, // デフォルト値
+          location_id: 1, // デフォルト値
+          golf_exp: formData.experience,
+          certification: formData.certification,
+          setting_1: '',
+          setting_2: '',
+          setting_3: '',
+          lesson_rank: 'beginner'
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'コーチ登録に失敗しました');
+      }
+      
+      const result = await response.json();
+      console.log('コーチ登録成功:', result);
+      
+      // 成功時の処理 - 完了画面に遷移
       router.push('/coach/signup/complete');
     } catch (error) {
       console.error('コーチ登録エラー:', error);
-      setErrors({ submit: '登録に失敗しました。もう一度お試しください。' });
+      let errorMessage = '登録に失敗しました。もう一度お試しください。';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
