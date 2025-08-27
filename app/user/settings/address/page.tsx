@@ -136,8 +136,8 @@ export default function AddressEditPage() {
           <div className="space-y-6">
             {/* 郵便番号 */}
             <div>
-              <label className="block text-white/70 text-sm mb-2">郵便番号</label>
               <CommonInput
+                label="郵便番号"
                 type="text"
                 value={userInfo.zipCode}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, zipCode: e.target.value }))}
@@ -147,8 +147,8 @@ export default function AddressEditPage() {
 
             {/* 都道府県 */}
             <div>
-              <label className="block text-white/70 text-sm mb-2">都道府県</label>
               <CommonInput
+                label="都道府県"
                 type="text"
                 value={userInfo.state}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, state: e.target.value }))}
@@ -158,8 +158,8 @@ export default function AddressEditPage() {
 
             {/* 住所1 */}
             <div>
-              <label className="block text-white/70 text-sm mb-2">住所1</label>
               <CommonInput
+                label="住所1"
                 type="text"
                 value={userInfo.address1}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, address1: e.target.value }))}
@@ -169,8 +169,8 @@ export default function AddressEditPage() {
 
             {/* 住所2 */}
             <div>
-              <label className="block text-white/70 text-sm mb-2">住所2</label>
               <CommonInput
+                label="住所2"
                 type="text"
                 value={userInfo.address2}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, address2: e.target.value }))}

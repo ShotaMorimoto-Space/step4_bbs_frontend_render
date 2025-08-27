@@ -181,8 +181,8 @@ export default function CareerEditPage() {
 
             {/* 職種 */}
             <div>
-              <label className="block text-white/70 text-sm mb-2">職種</label>
               <CommonInput
+                label="職種"
                 type="text"
                 value={userInfo.jobTitle}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, jobTitle: e.target.value }))}
@@ -192,8 +192,8 @@ export default function CareerEditPage() {
 
             {/* 役職 */}
             <div>
-              <label className="block text-white/70 text-sm mb-2">役職</label>
               <CommonInput
+                label="役職"
                 type="text"
                 value={userInfo.position}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, position: e.target.value }))}
