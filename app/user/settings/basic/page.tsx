@@ -211,14 +211,42 @@ export default function BasicInfoEditPage() {
       });
       
       // バックエンドAPIに送信
-      const response = await fetch(profileUrl, {
+      console.log('fetch実行前の詳細:', {
+        url: profileUrl,
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${accessToken ? accessToken.substring(0, 20) + '...' : 'なし'}`
         },
-        body: JSON.stringify(updateData)
+        body: updateData
       });
+      
+      let response: Response;
+      try {
+        response = await fetch(profileUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify(updateData)
+        });
+        
+        console.log('fetch実行成功:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          url: response.url
+        });
+      } catch (fetchError: any) {
+        console.error('fetch実行エラー詳細:', {
+          error: fetchError,
+          errorType: fetchError?.constructor?.name || 'unknown',
+          errorMessage: fetchError?.message || 'Unknown error',
+          errorStack: fetchError?.stack || 'No stack trace'
+        });
+        throw fetchError;
+      }
 
       console.log('APIレスポンス:', {
         status: response.status,
