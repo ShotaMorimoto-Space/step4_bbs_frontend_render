@@ -60,7 +60,7 @@ export default function LoginPage() {
       
       // バックエンドAPIにログインリクエストを送信
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
-      const loginUrl = `${apiUrl}/auth/login`;
+      const loginUrl = `${apiUrl}/auth/token`;
       
       console.log('ログインAPI呼び出し:', { 
         url: loginUrl, 
@@ -97,7 +97,7 @@ export default function LoginPage() {
         throw new Error(errorMessage);
       }
 
-      const loginData = await response.json();
+            const loginData = await response.json();
       console.log('ログイン成功:', loginData);
       console.log('ログインレスポンス詳細:', {
         response: loginData,
@@ -105,37 +105,74 @@ export default function LoginPage() {
         responseKeys: loginData ? Object.keys(loginData) : 'null'
       });
 
-      // バックエンドから返されたユーザー情報を保存
-      const { access_token, token_type, user } = loginData;
+      // バックエンドから返されたデータを取得
+      const { access_token, token_type, role } = loginData;
       
       console.log('抽出されたデータ:', {
         access_token: access_token ? 'あり' : 'なし',
         token_type,
-        user: user ? 'あり' : 'なし',
-        userKeys: user ? Object.keys(user) : 'null'
+        role: role || 'なし'
       });
       
-      // ユーザー情報をlocalStorageに保存
-      safeLocalStorage.setItem('user_type', user.usertype);
-      safeLocalStorage.setItem('user_email', user.email);
-      safeLocalStorage.setItem('user_id', user.user_id);
-      safeLocalStorage.setItem('access_token', access_token);
+      // ログイン成功後、ユーザー情報を取得
+      if (access_token) {
+        // アクセストークンを保存
+        safeLocalStorage.setItem('access_token', access_token);
         
-      console.log('localStorage保存完了:', {
-        usertype: user.usertype,
-        email: user.email,
-        id: user.user_id,
-        accessToken: access_token ? '取得済み' : 'なし'
-      });
-        
-        // usertypeに基づいて適切な画面に遷移
-        if (user.usertype === 'coach') {
-          console.log('コーチホームに遷移します');
-          router.push('/coach/home');
-        } else {
-          console.log('ユーザーホームに遷移します');
-          router.push('/user/home');
+        // ユーザー情報を取得するために /me エンドポイントを呼び出し
+        try {
+          const meUrl = `${apiUrl}/auth/me`;
+          console.log('ユーザー情報取得API呼び出し:', meUrl);
+          
+          const meResponse = await fetch(meUrl, {
+            headers: {
+              'Authorization': `Bearer ${access_token}`
+            }
+          });
+          
+          if (meResponse.ok) {
+            const userData = await meResponse.json();
+            console.log('ユーザー情報取得成功:', userData);
+            
+            // ユーザー情報をlocalStorageに保存
+            if (userData.role === 'user' && userData.profile) {
+              safeLocalStorage.setItem('user_type', 'user');
+              safeLocalStorage.setItem('user_email', userData.profile.email);
+              safeLocalStorage.setItem('user_id', userData.profile.user_id);
+              safeLocalStorage.setItem('user_name', userData.profile.username);
+            } else if (userData.role === 'coach' && userData.profile) {
+              safeLocalStorage.setItem('user_type', 'coach');
+              safeLocalStorage.setItem('user_email', userData.profile.email);
+              safeLocalStorage.setItem('user_id', userData.profile.coach_id);
+              safeLocalStorage.setItem('user_name', userData.profile.coachname);
+            }
+            
+            console.log('localStorage保存完了:', {
+              user_type: safeLocalStorage.getItem('user_type'),
+              user_email: safeLocalStorage.getItem('user_email'),
+              user_id: safeLocalStorage.getItem('user_id'),
+              user_name: safeLocalStorage.getItem('user_name')
+            });
+            
+            // roleに基づいて適切な画面に遷移
+            if (userData.role === 'coach') {
+              console.log('コーチホームに遷移します');
+              router.push('/coach/home');
+            } else {
+              console.log('ユーザーホームに遷移します');
+              router.push('/user/home');
+            }
+          } else {
+            console.error('ユーザー情報取得失敗:', meResponse.status, meResponse.statusText);
+            throw new Error('ユーザー情報の取得に失敗しました');
+          }
+        } catch (meError) {
+          console.error('ユーザー情報取得エラー:', meError);
+          throw new Error('ユーザー情報の取得に失敗しました');
         }
+      } else {
+        throw new Error('アクセストークンが取得できませんでした');
+      }
       
       
     } catch (error) {
