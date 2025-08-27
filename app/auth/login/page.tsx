@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CommonLayout, CommonButton, CommonInput, CommonErrorMessage } from '@/components/CommonLayout';
 import { Mail, Lock, User, Trophy } from 'lucide-react';
+import { safeLocalStorage } from '@/utils/storage';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -54,56 +55,53 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      // TODO: 実際のAPI呼び出しを実装
-      console.log('ログインデータ:', formData);
+      // バックエンドAPIにログインリクエストを送信
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      const loginUrl = `${apiUrl}/auth/login`;
       
-      // 仮のログイン処理（実際の実装ではAPIレスポンスからusertypeを取得）
-      // UUID v4を生成する関数
-      const generateUUID = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          const r = Math.random() * 16 | 0;
-          const v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-      };
+      console.log('ログインAPI呼び出し:', { url: loginUrl, email: formData.email });
       
-      const mockResponse = {
-        success: true,
-        user: {
-          id: generateUUID(), // 動的にUUIDを生成
-          email: formData.email,
-          usertype: formData.email.includes('coach') ? 'coach' : 'user' // 仮の判定ロジック
-        }
-      };
+      const response = await fetch(loginUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `username=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
+      });
 
-      if (mockResponse.success) {
-        // ユーザー情報をlocalStorageに保存
-        localStorage.setItem('user_type', mockResponse.user.usertype);
-        localStorage.setItem('user_email', mockResponse.user.email);
-        localStorage.setItem('user_id', mockResponse.user.id);
-        
-        // アクセストークンを生成して保存（実際の実装ではAPIレスポンスから取得）
-        const mockAccessToken = `mock_token_${mockResponse.user.id}_${Date.now()}`;
-        localStorage.setItem('access_token', mockAccessToken);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'ログインに失敗しました');
+      }
+
+      const loginData = await response.json();
+      console.log('ログイン成功:', loginData);
+
+      // バックエンドから返されたユーザー情報を保存
+      const { access_token, token_type, user } = loginData;
+      
+      // ユーザー情報をlocalStorageに保存
+      safeLocalStorage.setItem('user_type', user.usertype);
+      safeLocalStorage.setItem('user_email', user.email);
+      safeLocalStorage.setItem('user_id', user.user_id);
+      safeLocalStorage.setItem('access_token', access_token);
         
         console.log('ログイン成功:', {
-          usertype: mockResponse.user.usertype,
-          email: mockResponse.user.email,
-          id: mockResponse.user.id,
-          accessToken: mockAccessToken ? '生成済み' : 'なし'
+          usertype: user.usertype,
+          email: user.email,
+          id: user.user_id,
+          accessToken: access_token ? '取得済み' : 'なし'
         });
         
         // usertypeに基づいて適切な画面に遷移
-        if (mockResponse.user.usertype === 'coach') {
+        if (user.usertype === 'coach') {
           console.log('コーチホームに遷移します');
           router.push('/coach/home');
         } else {
           console.log('ユーザーホームに遷移します');
           router.push('/user/home');
         }
-      } else {
-        setErrors({ submit: 'ログインに失敗しました。メールアドレスとパスワードを確認してください。' });
-      }
+      
       
     } catch (error) {
       console.error('ログインエラー:', error);
