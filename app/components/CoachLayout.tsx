@@ -30,7 +30,7 @@ export const CoachLayout: React.FC<CoachLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-600 via-orange-700 to-red-700 flex flex-col items-center justify-start pt-20 pb-6 px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-orange-600 via-orange-700 to-red-700 flex flex-col items-center justify-start pt-20 pb-24 px-6 relative overflow-hidden">
                         {/* 背景装飾 - ゴルフボールのディンプルパターン */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* 斜めの格子パターン */}
@@ -96,7 +96,7 @@ export const CoachLayout: React.FC<CoachLayoutProps> = ({
       
       {/* メニューバー */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-300 z-50 shadow-xl">
-        <div className="flex justify-around items-center py-3 px-4 max-w-md mx-auto">
+        <div className="flex justify-around items-center py-4 px-4 max-w-md mx-auto">
           {/* ホーム */}
           <button
             onClick={() => router.push('/coach/home')}
