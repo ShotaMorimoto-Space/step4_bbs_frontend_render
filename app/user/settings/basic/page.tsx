@@ -97,7 +97,16 @@ export default function BasicInfoEditPage() {
       console.log('認証情報確認:', {
         accessToken: accessToken ? 'あり' : 'なし',
         userId: userId || 'なし',
+        userEmail: safeLocalStorage.getItem('user_email') || 'なし',
         localStorageKeys: typeof window !== 'undefined' ? Object.keys(window.localStorage) : []
+      });
+      
+      // localStorageの内容を詳細に確認
+      console.log('localStorage詳細:', {
+        access_token: safeLocalStorage.getItem('access_token') ? 'あり' : 'なし',
+        user_id: safeLocalStorage.getItem('user_id') || 'なし',
+        user_email: safeLocalStorage.getItem('user_email') || 'なし',
+        user_type: safeLocalStorage.getItem('user_type') || 'なし'
       });
       
       if (!accessToken) {
@@ -109,9 +118,16 @@ export default function BasicInfoEditPage() {
       if (!actualUserId) {
         const email = safeLocalStorage.getItem('user_email');
         if (email) {
-          // メールアドレスからユーザーIDを取得するAPIを呼び出す
+          console.log('メールアドレスからユーザーID取得を試行:', email);
+          
+          // バックエンドAPIからユーザー情報を取得
           try {
-            const response = await fetch('/api/auth/me', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+            const userInfoUrl = `${apiUrl}/auth/me`;
+            
+            console.log('ユーザー情報取得API呼び出し:', userInfoUrl);
+            
+            const response = await fetch(userInfoUrl, {
               headers: {
                 'Authorization': `Bearer ${accessToken}`
               }
@@ -119,9 +135,9 @@ export default function BasicInfoEditPage() {
             
             if (response.ok) {
               const userData = await response.json();
-              console.log('/api/auth/meレスポンス詳細:', userData);
+              console.log('ユーザー情報取得APIレスポンス詳細:', userData);
               
-              // profileオブジェクトからuser_idを取得
+              // レスポンスからuser_idを取得
               let fetchedUserId = null;
               if (userData.profile && userData.profile.user_id) {
                 fetchedUserId = userData.profile.user_id;
@@ -129,25 +145,39 @@ export default function BasicInfoEditPage() {
                 fetchedUserId = userData.user_id;
               } else if (userData.id) {
                 fetchedUserId = userData.id;
+              } else if (userData.user && userData.user.user_id) {
+                fetchedUserId = userData.user.user_id;
               }
               
               if (fetchedUserId) {
                 actualUserId = fetchedUserId;
                 console.log('APIから取得したユーザーID:', fetchedUserId);
+                
+                // localStorageに保存
+                safeLocalStorage.setItem('user_id', fetchedUserId);
               } else {
-                console.warn('/api/auth/meレスポンスにuser_idが含まれていません:', userData);
+                console.warn('ユーザー情報取得APIレスポンスにuser_idが含まれていません:', userData);
               }
             } else {
-              console.error('ユーザーID取得失敗:', response.status, response.statusText);
+              console.error('ユーザー情報取得失敗:', response.status, response.statusText);
+              const errorText = await response.text();
+              console.error('エラーレスポンス詳細:', errorText);
             }
           } catch (error) {
-            console.error('ユーザーID取得エラー:', error);
+            console.error('ユーザー情報取得エラー:', error);
           }
+        } else {
+          console.warn('メールアドレスも取得できません');
         }
       }
       
       if (!actualUserId) {
-        throw new Error('ユーザーIDが取得できません');
+        console.error('ユーザーID取得失敗の詳細:', {
+          localStorageUserId: userId,
+          localStorageEmail: safeLocalStorage.getItem('user_email'),
+          localStorageKeys: typeof window !== 'undefined' ? Object.keys(window.localStorage) : []
+        });
+        throw new Error('ユーザーIDが取得できません。ログインし直してください。');
       }
 
       // バックエンドに送信するデータを準備
