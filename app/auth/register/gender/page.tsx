@@ -27,8 +27,8 @@ export default function GenderSelectionPage() {
   };
 
   const genderOptions = [
-    { value: 'male', label: '男性', icon: '👨' },
-    { value: 'female', label: '女性', icon: '👩' }
+    { value: 'male', label: '男性', icon: '' },
+    { value: 'female', label: '女性', icon: '' }
   ];
 
   return (

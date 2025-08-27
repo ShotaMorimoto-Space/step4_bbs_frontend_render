@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { RequestLayout } from '@/components/RequestLayout';
 import { CommonButton } from '@/components/CommonLayout';
 import { safeLocalStorage } from '@/utils/storage';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ProgressBar from '@/components/ProgressBar';
 
 const PROBLEMS = ['スライス','フック','トップ','ダフリ','飛距離不足','方向性','弾道の高さ','スピン量','リズム','ミート率'];
 
@@ -13,6 +15,9 @@ export default function UserRequestProblemPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [draftData, setDraftData] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState('');
 
   // 前の画面から渡されたデータを取得
   useEffect(() => {
@@ -73,6 +78,11 @@ export default function UserRequestProblemPage() {
           
           // 動画アップロードを実行
           try {
+            // ローディング状態を開始
+            setIsLoading(true);
+            setUploadProgress(0);
+            setLoadingText('動画アップロードの準備中...');
+            
             // FormDataを作成
             const formData = new FormData();
             
@@ -156,8 +166,12 @@ export default function UserRequestProblemPage() {
             }
             
             // バックエンドのAPIエンドポイント
-                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
-      const uploadUrl = `${apiUrl}/upload-video`;
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+            const uploadUrl = `${apiUrl}/upload-video`;
+            
+            // アップロード開始
+            setLoadingText('動画ファイルをアップロード中...');
+            setUploadProgress(30);
             
             console.log('アップロードURL:', uploadUrl);
       console.log('APIベースURL:', apiUrl);
@@ -166,6 +180,10 @@ export default function UserRequestProblemPage() {
             for (let [key, value] of formData.entries()) {
               console.log(`${key}:`, value);
             }
+            
+            // アップロード処理中
+            setLoadingText('サーバーに送信中...');
+            setUploadProgress(60);
             
             const response = await fetch(uploadUrl, {
               method: 'POST',
@@ -182,8 +200,15 @@ export default function UserRequestProblemPage() {
               const result = await response.json();
               console.log('動画アップロード成功:', result);
               
-              // 成功したら確認画面へ
-              router.push('/user/request-confirm');
+              // アップロード完了
+              setLoadingText('アップロード完了！');
+              setUploadProgress(100);
+              
+              // 少し待ってから確認画面へ
+              setTimeout(() => {
+                setIsLoading(false);
+                router.push('/user/request-confirm');
+              }, 1000);
             } else {
               console.error('動画アップロード失敗:', response.status, response.statusText);
               
@@ -200,6 +225,10 @@ export default function UserRequestProblemPage() {
             }
           } catch (error) {
             console.error('動画アップロードエラー:', error);
+            
+            // ローディング状態を停止
+            setIsLoading(false);
+            setUploadProgress(0);
             
             // ユーザーにエラーを表示
             const errorMessage = error instanceof Error ? error.message : String(error);
@@ -276,13 +305,35 @@ export default function UserRequestProblemPage() {
         />
       </div>
 
+      {/* ローディングオーバーレイ */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <LoadingSpinner size="large" text={loadingText} />
+              <div className="mt-6">
+                <ProgressBar 
+                  progress={uploadProgress} 
+                  text="アップロード進行状況"
+                  showPercentage={true}
+                />
+              </div>
+              <p className="mt-4 text-sm text-gray-600">
+                しばらくお待ちください...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 次へボタン */}
       <div className="mt-8">
         <CommonButton
           onClick={handleNext}
           className="w-full"
+          disabled={isLoading}
         >
-          次へ
+          {isLoading ? '処理中...' : '次へ'}
         </CommonButton>
       </div>
     </RequestLayout>

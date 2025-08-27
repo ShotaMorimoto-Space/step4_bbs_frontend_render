@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { safeLocalStorage } from '@/utils/storage';
+import { SettingsLayout } from '@/components/SettingsLayout';
+import { CommonButton, CommonInput, CommonErrorMessage } from '@/components/CommonLayout';
 
 export default function AddressEditPage() {
   const router = useRouter();
@@ -103,36 +105,28 @@ export default function AddressEditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white">
-      {/* ヘッダー */}
-      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/user/settings')}
-              className="flex items-center gap-2 px-3 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors"
-            >
-              <ArrowLeft size={16} />
-              戻る
-            </button>
-            <h1 className="text-xl font-bold">住所編集</h1>
-            <div className="w-20" /> {/* スペーサー */}
-          </div>
-        </div>
+    <SettingsLayout title="住所編集">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <button
+          onClick={() => router.push('/user/settings')}
+          className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"
+        >
+          <X size={20} className="text-white" />
+        </button>
+        <h1 className="text-white text-lg font-medium">住所編集</h1>
+        <div className="w-10" /> {/* スペーサー */}
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      {/* Content */}
+      <main className="flex-1 overflow-y-auto px-4 pb-4">
         {/* メッセージ表示 */}
         {successMessage && (
-          <div className="mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-300">
-            {successMessage}
-          </div>
+          <CommonErrorMessage message={successMessage} />
         )}
         
         {errorMessage && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
-            {errorMessage}
-          </div>
+          <CommonErrorMessage message={errorMessage} />
         )}
 
         {/* 編集フォーム */}
@@ -143,11 +137,10 @@ export default function AddressEditPage() {
             {/* 郵便番号 */}
             <div>
               <label className="block text-white/70 text-sm mb-2">郵便番号</label>
-              <input
+              <CommonInput
                 type="text"
                 value={userInfo.zipCode}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, zipCode: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/20 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/40"
                 placeholder="例: 100-0001"
               />
             </div>
@@ -155,11 +148,10 @@ export default function AddressEditPage() {
             {/* 都道府県 */}
             <div>
               <label className="block text-white/70 text-sm mb-2">都道府県</label>
-              <input
+              <CommonInput
                 type="text"
                 value={userInfo.state}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, state: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/20 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/40"
                 placeholder="例: 東京都"
               />
             </div>
@@ -167,11 +159,10 @@ export default function AddressEditPage() {
             {/* 住所1 */}
             <div>
               <label className="block text-white/70 text-sm mb-2">住所1</label>
-              <input
+              <CommonInput
                 type="text"
                 value={userInfo.address1}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, address1: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/20 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/40"
                 placeholder="例: 千代田区千代田1-1"
               />
             </div>
@@ -179,11 +170,10 @@ export default function AddressEditPage() {
             {/* 住所2 */}
             <div>
               <label className="block text-white/70 text-sm mb-2">住所2</label>
-              <input
+              <CommonInput
                 type="text"
                 value={userInfo.address2}
                 onChange={(e) => setUserInfo(prev => ({ ...prev, address2: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/20 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/40"
                 placeholder="例: アパート名、部屋番号など"
               />
             </div>
@@ -191,24 +181,25 @@ export default function AddressEditPage() {
 
           {/* アクションボタン */}
           <div className="flex gap-3 mt-8">
-            <button
+            <CommonButton
               onClick={handleUpdate}
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+              className="flex-1"
             >
-              <Save size={16} />
+              <Save size={16} className="mr-2" />
               {isSubmitting ? '保存中...' : '保存'}
-            </button>
-            <button
+            </CommonButton>
+            <CommonButton
               onClick={() => router.push('/user/settings')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              variant="secondary"
+              className="flex-1"
             >
-              <X size={16} />
+              <X size={16} className="mr-2" />
               キャンセル
-            </button>
+            </CommonButton>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </SettingsLayout>
   );
 }
