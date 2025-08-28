@@ -393,61 +393,49 @@ export default function CoachFeedbackPage() {
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       
-      // 1. 全体的なフィードバックを保存（既存のAPIエンドポイントを使用）
-      console.log('フィードバック送信開始:', {
-        videoId,
-        feedback: feedback,
-        apiUrl: `${apiUrl}/coach/add-overall-feedback`
+      // 1. セクショングループを取得
+      const sectionGroupResponse = await fetch(`${apiUrl}/coach/get-section-groups-by-video/${videoId}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
       });
+
+      if (!sectionGroupResponse.ok) {
+        throw new Error('セクショングループの取得に失敗しました');
+      }
+
+      const sectionGroups = await sectionGroupResponse.json();
+      if (!sectionGroups || sectionGroups.length === 0) {
+        throw new Error('セクショングループが見つかりません');
+      }
+
+      const sectionGroupId = sectionGroups[0].section_group_id;
       
-      // 既存のAPIエンドポイントを使用（音声ファイルベース）
-      const formData = new FormData();
-      formData.append('feedback_type', 'overall');
-      formData.append('audio_file', new Blob(['dummy audio data'], { type: 'audio/wav' }), 'feedback.wav');
-      
-      // セクショングループIDが必要なので、まずセクショングループを作成
-      const sectionGroupResponse = await fetch(`${apiUrl}/coach/create-section-group/${videoId}`, {
-        method: 'POST',
+      // 2. テキストベースのフィードバックを保存
+      const feedbackResponse = await fetch(`${apiUrl}/coach/update-section-group-feedback/${sectionGroupId}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
-          video_id: videoId,
-          session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          overall_feedback: feedback.overall_feedback,
+          overall_feedback_summary: feedback.overall_feedback_summary,
+          next_training_menu: feedback.next_training_menu,
+          next_training_menu_summary: feedback.next_training_menu_summary
         })
       });
-      
-      if (!sectionGroupResponse.ok) {
-        const errorData = await sectionGroupResponse.text();
-        console.error('セクショングループ作成エラー:', sectionGroupResponse.status, errorData);
-        throw new Error(`セクショングループの作成に失敗しました: ${sectionGroupResponse.status}`);
-      }
-      
-      const sectionGroupResult = await sectionGroupResponse.json();
-      console.log('セクショングループ作成結果:', sectionGroupResult);
-      
-      const sectionGroupId = sectionGroupResult.section_group_id;
-      
-      // 全体的フィードバックを保存
-      const overallFeedbackResponse = await fetch(`${apiUrl}/coach/add-overall-feedback/${sectionGroupId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: formData
-      });
-      
-      if (!overallFeedbackResponse.ok) {
-        const errorData = await overallFeedbackResponse.text();
-        console.error('全体的フィードバック保存エラー:', overallFeedbackResponse.status, errorData);
-        throw new Error(`全体的フィードバックの保存に失敗しました: ${overallFeedbackResponse.status}`);
+
+      if (!feedbackResponse.ok) {
+        const errorData = await feedbackResponse.text();
+        console.error('フィードバック保存エラー:', feedbackResponse.status, errorData);
+        throw new Error(`フィードバックの保存に失敗しました: ${feedbackResponse.status}`);
       }
 
-      const feedbackResult = await overallFeedbackResponse.json();
+      const feedbackResult = await feedbackResponse.json();
       console.log('フィードバック保存結果:', feedbackResult);
       
-      // 2. 動画のステータスを「対応済み」に更新
+      // 3. 動画のステータスを「対応済み」に更新
       const statusUpdateResponse = await fetch(`${apiUrl}/coach/update-video-status/${videoId}`, {
         method: 'POST',
         headers: {
@@ -465,8 +453,6 @@ export default function CoachFeedbackPage() {
         console.log('ステータス更新結果:', statusResult);
       } else {
         console.warn('ステータス更新に失敗しましたが、フィードバックは保存されています');
-        const errorData = await statusUpdateResponse.text();
-        console.error('ステータス更新エラー:', statusUpdateResponse.status, errorData);
       }
       
       console.log('フィードバック送信完了:', feedback);

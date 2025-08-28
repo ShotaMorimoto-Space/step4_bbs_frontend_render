@@ -48,6 +48,48 @@ export default function CoachVideoDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // セクショングループ作成とフィードバック画面への遷移
+  const createFeedbackSession = async () => {
+    try {
+      const accessToken = safeLocalStorage.getItem('access_token');
+      if (!accessToken) {
+        setError('認証トークンがありません');
+        return;
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
+      
+      // セクショングループを作成
+      const response = await fetch(`${apiUrl}/coach/create-section-group-simple/${videoId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          video_id: videoId,
+          session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('セクショングループ作成エラー:', response.status, errorData);
+        throw new Error(`セクショングループの作成に失敗しました: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('セクショングループ作成結果:', result);
+
+      // 添削画面へ遷移
+      router.push(`/coach/videos/${videoId}/feedback`);
+      
+    } catch (error) {
+      console.error('セクショングループ作成エラー:', error);
+      setError('セクショングループの作成に失敗しました');
+    }
+  };
+
   // 認証チェック
   useEffect(() => {
     const checkAuth = () => {
@@ -315,54 +357,52 @@ export default function CoachVideoDetailPage() {
           </div>
         </div>
 
-        {/* 基本情報 */}
-        <div className="bg-white/10 rounded-xl p-4">
-          <h3 className="text-white text-lg font-medium mb-4">基本情報</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <User size={16} className="text-orange-400" />
-                <span className="text-white/80 text-sm">ユーザー名</span>
-                <span className="text-white font-medium">{video.user_name}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-orange-400" />
-                <span className="text-white/80 text-sm">アップロード日時</span>
-                <span className="text-white font-medium">{formatDate(video.upload_date)}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Target size={16} className="text-orange-400" />
-                <span className="text-white/80 text-sm">クラブ</span>
-                <span className="bg-orange-500/20 px-2 py-1 rounded text-xs text-white">
-                  {video.club_type}
-                </span>
-              </div>
+        {/* 動画情報 */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/30">
+          <h2 className="text-white text-lg font-medium mb-4">動画情報</h2>
+          <div className="space-y-3 text-white/90">
+            <div className="flex items-center gap-2">
+              <User size={16} className="text-violet-400" />
+              <span>ユーザー: {video.user_name}</span>
             </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-white/80 text-sm">ステータス</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(video.status)}`}>
-                  {getStatusLabel(video.status)}
-                </span>
+            <div className="flex items-center gap-2">
+              <Video size={16} className="text-violet-400" />
+              <span>クラブ: {video.club_type || '未設定'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Target size={16} className="text-violet-400" />
+              <span>スイング形式: {video.swing_form || '未設定'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-violet-400" />
+              <span>アップロード日: {new Date(video.upload_date).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award size={16} className="text-violet-400" />
+              <span>ステータス: {video.status}</span>
+            </div>
+            {video.swing_note && (
+              <div className="pt-2 border-t border-white/20">
+                <div className="text-sm text-white/70 mb-1">メモ:</div>
+                <div className="text-white/90">{video.swing_note}</div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-white/80 text-sm">優先度</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getPriorityColor(video.priority)}`}>
-                  {getPriorityLabel(video.priority)}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-white/80 text-sm">問題</span>
-                <span className="bg-blue-500/20 px-2 py-1 rounded text-xs text-white">
-                  {video.swing_form}
-                </span>
-              </div>
+            )}
+          </div>
+        </div>
+
+        {/* アクションボタン */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/30">
+          <h2 className="text-white text-lg font-medium mb-4">アクション</h2>
+          <div className="space-y-3">
+            <button
+              onClick={createFeedbackSession}
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <MessageSquare size={20} />
+              添削フィードバックを作成
+            </button>
+            <div className="text-sm text-white/60 text-center">
+              このボタンを押すと、フィードバック用のセッションが作成され、添削画面に遷移します
             </div>
           </div>
         </div>
