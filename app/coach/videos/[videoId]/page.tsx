@@ -390,23 +390,6 @@ export default function CoachVideoDetailPage() {
           </div>
         </div>
 
-        {/* アクションボタン */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/30">
-          <h2 className="text-white text-lg font-medium mb-4">アクション</h2>
-          <div className="space-y-3">
-            <button
-              onClick={createFeedbackSession}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <MessageSquare size={20} />
-              添削フィードバックを作成
-            </button>
-            <div className="text-sm text-white/60 text-center">
-              このボタンを押すと、フィードバック用のセッションが作成され、添削画面に遷移します
-            </div>
-          </div>
-        </div>
-
         {/* ユーザープロフィール */}
         {video.user_profile && (
           <div className="bg-white/10 rounded-xl p-4">
