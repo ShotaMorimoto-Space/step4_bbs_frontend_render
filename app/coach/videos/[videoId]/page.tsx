@@ -60,7 +60,7 @@ export default function CoachVideoDetailPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aps-bbc-02-dhdqd5eqgxa7f0hg.canadacentral-01.azurewebsites.net/api/v1';
       
       // セクショングループを作成
-      const response = await fetch(`${apiUrl}/coach/create-section-group-simple/${videoId}`, {
+      const response = await fetch(`${apiUrl}/coach/create-section-group-frontend/${videoId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
